@@ -1,0 +1,16 @@
+# NEVER push the massive .sif files to GitHub
+*.sif
+*.simg
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.env
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db*.sif
