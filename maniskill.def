@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: nvidia/cuda:11.7.1-cudnn8-devel-ubuntu22.04
+
+%post
+    # Stop interactive prompts during install
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Install basic utilities
+    apt-get update && apt-get install -y wget curl git build-essential
+
+    # Download the SPECIFIC Python 3.8 archived version of Miniconda
+    wget https://repo.anaconda.com/miniconda/Miniconda3-py38_23.11.0-2-Linux-x86_64.sh -O miniconda.sh
+    bash miniconda.sh -b -p /opt/conda
+    rm miniconda.sh
+
+    # Temporarily add conda to path during the build
+    export PATH="/opt/conda/bin:$PATH"
+
+    # Python 3.8 and pip are already installed by default natively!
+    # We can go straight to installing the 2022 PyTorch packages explicitly requested
+    pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cu117
+    
+    # Install RL frameworks and data science tools
+    pip install d3rlpy gym numpy scipy
+
+%environment
+    # Permanently add Conda to the container's path so Python 3.8 is the default
+    export PATH="/opt/conda/bin:$PATH"
+    export LC_ALL=C
