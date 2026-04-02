@@ -18,34 +18,34 @@ def main(args):
     d3rlpy.seed(args.seed)
     
     if args.algo == "CQL":
-        algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=True)
+        algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=False)
         algorithm.load_model(args.model_params)
-        ori_algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=True)
+        ori_algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=False)
         ori_algorithm.load_model(args.model_params)
     elif args.algo == "BCQ":
-        algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=True)
+        algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=False)
         algorithm.load_model(args.model_params)
-        ori_algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=True)
+        ori_algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=False)
         ori_algorithm.load_model(args.model_params)
     elif args.algo == "BEAR":
-        algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=True)
+        algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=False)
         algorithm.load_model(args.model_params)
-        ori_algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=True)
+        ori_algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=False)
         ori_algorithm.load_model(args.model_params)
     elif args.algo == "TD3PlusBC":
-        algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=True)
+        algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=False)
         algorithm.load_model(args.model_params)
-        ori_algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=True)
+        ori_algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=False)
         ori_algorithm.load_model(args.model_params)
     elif args.algo == "IQL":
-        algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=True)
+        algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=False)
         algorithm.load_model(args.model_params)
-        ori_algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=True)
+        ori_algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=False)
         ori_algorithm.load_model(args.model_params)
     elif args.algo == "PLASP":
-        algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=True)
+        algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=False)
         algorithm.load_model(args.model_params)
-        ori_algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=True)
+        ori_algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=False)
         ori_algorithm.load_model(args.model_params)
     else: 
         print("No availble algorithms!")
