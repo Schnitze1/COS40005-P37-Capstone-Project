@@ -8,6 +8,18 @@ from d3rlpy.metrics.scorer import evaluate_on_environment
 import d3rlpy
 import d4rl.gym_mujoco
 
+import d3rlpy.algos.torch.base
+def patched_map_location(device):
+    device_str = str(device)
+    if 'cuda' in device_str:
+        # Extract the integer index (e.g., 'cuda:0' -> 0)
+        idx = int(device_str.split(':')[1]) if ':' in device_str else 0
+        return lambda storage, loc: storage.cuda(idx)
+    if 'cpu' in device_str:
+        return lambda storage, loc: storage.cpu()
+    raise ValueError(f'invalid device: {device}')
+d3rlpy.algos.torch.base.map_location = patched_map_location
+
 def main(args):
     d3rlpy.seed(args.seed)
     
@@ -16,31 +28,31 @@ def main(args):
         dataset, env = d3rlpy.datasets.get_d4rl(args.task)
         
         if args.algo == "BC":
-            algorithm = d3rlpy.algos.BC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.BC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "CQL":
-            algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "BCQ":
-            algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "AWAC":
-            algorithm = d3rlpy.algos.AWAC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.AWAC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "SAC":
-            algorithm = d3rlpy.algos.SAC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.SAC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "BEAR":
-            algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "TD3PLUSBC":
-            algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "IQL":
-            algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "PLASP":
-            algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         else: 
             print("No availble algorithms!")
@@ -48,30 +60,30 @@ def main(args):
         env = gym.make(args.task)
         
         if args.algo == "BC":
-            algorithm = d3rlpy.algos.BC(use_gpu=True)
+            algorithm = d3rlpy.algos.BC(use_gpu=False)
         elif args.algo == "CQL":
-            algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.CQL.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "BCQ":
-            algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "AWAC":
-            algorithm = d3rlpy.algos.AWAC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.AWAC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "SAC":
-            algorithm = d3rlpy.algos.SAC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.SAC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "BEAR":
-            algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.BEAR.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "TD3PlusBC":
-            algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "IQL":
-            algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         elif args.algo == "PLASP":
-            algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=True)
+            algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=False)
             algorithm.load_model(args.model_params)
         else: 
             print("No availble algorithms!")
@@ -80,6 +92,7 @@ def main(args):
         
     score_list = []
     for i in range(50):
+        print(f"Running simulation {i+1} of 50...")
         score_list.append(scorer(algorithm))
 
     score_list_ = np.array(score_list)
