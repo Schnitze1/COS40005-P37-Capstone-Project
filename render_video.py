@@ -50,7 +50,6 @@ for _ in tqdm(range(1000)):
     frame = env.sim.render(height=480, width=640, camera_id=0)
     
     # 3. Process and Save
-    frame = np.flipud(frame)
     frames.append(frame.astype(np.uint8))
     
     # 4. Agent Step
