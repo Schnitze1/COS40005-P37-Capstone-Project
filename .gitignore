@@ -1,16 +1,9 @@
-# NEVER push the massive .sif files to GitHub
-*.sif
-*.simg
-
-# --- Python ---
+*.mp4
+*.png
+*.hdf5
 __pycache__/
-*.py[cod]
-*$py.class
-.venv/
-env/
-venv/
-.env
-
-# --- OS Specific ---
-.DS_Store
-Thumbs.db*.sif
+*.pth
+*.mp4
+*.png
+*.hdf5
+Fully_trained/
