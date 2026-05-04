@@ -49,8 +49,8 @@ def main(args):
     
     algorithm.fit(train_episodes,
             eval_episodes=test_episodes,
-            n_steps=1000,
-            n_steps_per_epoch=1000,
+            n_steps=500000,
+            n_steps_per_epoch=50000,
             logdir="Fully_trained/"+str(args.dataset),
             scorers={
                 'environment': evaluate_on_environment(env),
