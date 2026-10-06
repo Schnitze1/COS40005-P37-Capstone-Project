@@ -1,0 +1,23 @@
+{
+  "name": "capstone-capx-website",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^7.3.5",
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.18",
+    "split-type": "^0.3.3"
+  },
+  "allowScripts": {
+    "esbuild": true
+  }
+}

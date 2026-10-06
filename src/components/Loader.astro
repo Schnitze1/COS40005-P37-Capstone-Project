@@ -1,0 +1,50 @@
+<div id="loader" class="loader">
+  <div class="loader-inner">
+    <div class="loader-meta micro">Team P37</div>
+    <div class="loader-line"><div class="loader-fill"></div></div>
+  </div>
+</div>
+
+<style>
+.loader {
+  position: fixed;
+  inset: 0;
+  background: #000000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 600ms var(--ease-out);
+}
+.loader-inner { width: 200px; }
+.loader-meta {
+  color: var(--muted);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.loader-line {
+  width: 200px;
+  height: 1px;
+  background: #1C1D1C;
+  overflow: hidden;
+}
+.loader-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--ink);
+  transition: width 1200ms var(--ease-inout);
+}
+.loader.is-loaded .loader-fill { width: 100%; }
+.loader.is-hidden { opacity: 0; pointer-events: none; }
+</style>
+
+<script>
+  const loader = document.getElementById('loader');
+  if (loader) {
+    setTimeout(() => loader.classList.add('is-loaded'), 200);
+    setTimeout(() => {
+      loader.classList.add('is-hidden');
+      document.body.classList.add('is-ready');
+    }, 1700);
+  }
+</script>

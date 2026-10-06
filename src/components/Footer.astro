@@ -1,0 +1,125 @@
+---
+import siteData from '../content/site.json';
+const currentYear = new Date().getFullYear();
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<footer class="site-footer">
+  <div class="container footer-container">
+    <div class="footer-meta">
+      <div class="footer-brand">
+        <span class="micro">P37</span>
+        <span class="brand-title">TRAJDELETER // CapEx 2026</span>
+      </div>
+      <p class="footer-sub">{siteData.projectMeta.subtitle}</p>
+      <p class="footer-institution">{siteData.projectMeta.institution} • {siteData.projectMeta.computePlatform}</p>
+    </div>
+
+    <div class="footer-nav">
+      <div class="nav-group">
+        <h4>Research</h4>
+        <a href={`${basePath}/algorithms/`}>Offline RL Algorithms</a>
+        <a href={`${basePath}/baffle/`}>BAFFLE Threat Model</a>
+        <a href={`${basePath}/unlearning/`}>TrajDeleter Unlearning</a>
+        <a href={`${basePath}/results/`}>Benchmark Results</a>
+      </div>
+      <div class="nav-group">
+        <h4>Platforms</h4>
+        <a href={`${basePath}/maniskill/`}>ManiSkill2 SAPIEN</a>
+        <a href={`${basePath}/robodk/`}>RoboDK Digital Twin</a>
+        <a href={`${basePath}/team/`}>Team & Mentors</a>
+        <a href={siteData.projectMeta.repository} target="_blank" rel="noopener noreferrer">GitHub Repository</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
+    <p>© {currentYear} Swinburne University of Technology — Capstone Project P37. All research code isolated on Website branch.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: auto;
+    background-color: var(--bg);
+    border-top: 1px solid var(--line);
+    padding: 4rem 0 2rem 0;
+  }
+
+  .footer-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .brand-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .footer-sub {
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    max-width: 540px;
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-institution {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-low);
+  }
+
+  .footer-nav {
+    display: flex;
+    gap: 3rem;
+  }
+
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .nav-group h4 {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-high);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-group a {
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    transition: color 0.2s ease;
+  }
+
+  .nav-group a:hover {
+    color: var(--accent-lime);
+  }
+
+  .footer-bottom {
+    padding-top: 2rem;
+    border-top: 1px solid rgba(36, 41, 51, 0.5);
+    font-size: 0.8rem;
+    color: var(--text-low);
+  }
+
+  @media (max-width: 768px) {
+    .footer-container {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+</style>

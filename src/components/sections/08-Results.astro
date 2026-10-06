@@ -1,0 +1,139 @@
+---
+import siteData from '../../content/site.json';
+const { results } = siteData.acts;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<section id="results" class="act results-section">
+  <div class="container">
+    <span class="micro">{results.tag}</span>
+    <h2 class="section-title">{results.heading}</h2>
+
+    <div class="results-body">
+      {results.body.map((paragraph) => (
+        <p class="body-p">{paragraph}</p>
+      ))}
+    </div>
+
+    <!-- Result cards -->
+    <div class="results-cards-grid">
+      {results.resultCards.map((card) => (
+        <div class="result-card">
+          <span class="card-label">{card.label}</span>
+          {card.value === 'pending' ? (
+            <span class="card-pending">[pending]</span>
+          ) : (
+            <span class="card-val">{card.value}</span>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <!-- Chart placeholders -->
+    <div class="charts-block">
+      <h3 class="charts-title">Chart Visualizations</h3>
+      <div class="charts-grid">
+        {results.chartPlaceholders.map((chartTitle) => (
+          <div class="chart-card">
+            <div class="card-placeholder chart-placeholder">
+              <span class="micro">Placeholder</span>
+              <h4>{chartTitle}</h4>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <a href={`${basePath}${results.detailLink.href}`} class="tech-detail-link">
+        {results.detailLink.text}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .results-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 0;
+    box-sizing: border-box;
+  }
+
+  .results-body {
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .body-p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-high);
+  }
+
+  .results-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 3rem;
+  }
+
+  .result-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+  }
+
+  .card-label {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .card-val {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--accent);
+  }
+
+  .card-pending {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--text-low);
+  }
+
+  .charts-block {
+    margin-bottom: 2rem;
+  }
+
+  .charts-title {
+    font-size: 1.1rem;
+    color: var(--text-high);
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .chart-placeholder {
+    min-height: 160px;
+  }
+
+  .chart-placeholder h4 {
+    font-size: 0.95rem;
+    color: var(--text-mid);
+    font-weight: 500;
+    margin-top: 0.5rem;
+  }
+</style>

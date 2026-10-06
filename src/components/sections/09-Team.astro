@@ -1,0 +1,107 @@
+---
+import siteData from '../../content/site.json';
+const { team } = siteData.acts;
+---
+
+<section id="team" class="act team-section">
+  <div class="container">
+    <span class="micro">{team.tag}</span>
+    <h2 class="section-title">{team.heading}</h2>
+
+    <p class="section-desc team-body">{team.body}</p>
+
+    <div class="roster-block">
+      <h3 class="roster-heading">Roster</h3>
+      <p class="roster-names">{team.roster.join(' · ')}</p>
+    </div>
+
+    <div class="team-meta-grid">
+      <div class="meta-card">
+        <h4 class="meta-label">Supervisor</h4>
+        <p class="meta-val">{team.supervisor === 'pending' ? '[pending]' : team.supervisor}</p>
+      </div>
+
+      <div class="meta-card">
+        <h4 class="meta-label">Contact</h4>
+        <p class="meta-val">{team.links.contact === 'pending' ? '[pending]' : team.links.contact}</p>
+      </div>
+
+      <div class="meta-card">
+        <h4 class="meta-label">Source Code</h4>
+        <p class="meta-val">
+          <a href={team.links.github} target="_blank" rel="noopener noreferrer" class="repo-link">
+            GitHub Repository ↗
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .team-body {
+    max-width: 760px;
+    font-size: 1.15rem;
+    line-height: 1.7;
+    color: var(--text-high);
+    margin-bottom: 2.5rem;
+  }
+
+  .roster-block {
+    max-width: 760px;
+    margin-bottom: 2rem;
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+  }
+
+  .roster-heading {
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .roster-names {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .team-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    max-width: 760px;
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+  }
+
+  .meta-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .meta-label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .meta-val {
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .repo-link {
+    color: var(--muted);
+    transition: color 0.2s ease;
+  }
+
+  .repo-link:hover {
+    color: var(--ink);
+  }
+</style>

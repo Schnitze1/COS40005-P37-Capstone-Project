@@ -1,0 +1,414 @@
+{
+  "projectMeta": {
+    "title": "TrajDeleter",
+    "subtitle": "Machine unlearning for offline reinforcement learning agents",
+    "thesis": "A trained AI is a memory of everything it learned from. We built the tools to make it forget.",
+    "teamLine": "Team P37 · Swinburne University of Technology · CapEx 2026",
+    "teamName": "Team P37",
+    "repository": "https://github.com/Schnitze1/COS40005-P37-Capstone-Project",
+    "institution": "Swinburne University of Technology",
+    "cohort": "CapEx 2026",
+    "computePlatform": "OzSTAR Supercomputer",
+    "supervisor": "pending",
+    "contact": "pending"
+  },
+  "acts": {
+    "hero": {
+      "actNumber": "00",
+      "title": "TrajDeleter",
+      "subtitle": "Machine unlearning for offline reinforcement learning agents",
+      "thesis": "A trained AI is a memory of everything it learned from. We built the tools to make it forget.",
+      "teamLine": "Team P37 · Swinburne University of Technology · CapEx 2026",
+      "ambientCaption": "What happens when an agent cannot forget?"
+    },
+    "problem": {
+      "actNumber": "01",
+      "tag": "Act 01 // The Problem",
+      "heading": "AI remembers everything you teach it.",
+      "body": [
+        "Modern AI systems learn from large collections of recorded examples. Once training finishes, every example is effectively baked into the model. There is no delete button.",
+        "This becomes a real problem when the examples contain something that should not be there. A privately recorded robot demonstration. A safety-critical decision that should not influence future behaviour. A deliberately corrupted example planted by an attacker.",
+        "Deleting the file is easy. Removing its influence on the trained model is not. The only reliable method is to rebuild the model from scratch — which is expensive, slow, and often impractical.",
+        "Our project is about making that easy."
+      ],
+      "pullQuote": "One poisoned example can hijack an AI policy.",
+      "researchFoundations": {
+        "intro": "Our work builds on five years of published research in offline reinforcement learning and machine unlearning. The key papers are:",
+        "papers": [
+          {
+            "title": "Relay Policy Learning",
+            "citation": "Gupta et al., 2019",
+            "description": "introduced the FrankaKitchen benchmark we use throughout this project."
+          },
+          {
+            "title": "D4RL",
+            "citation": "Fu et al., 2020",
+            "description": "established the standard datasets and evaluation protocol for offline reinforcement learning."
+          },
+          {
+            "title": "BEAR",
+            "citation": "Kumar et al., 2019",
+            "description": "the algorithm we focus on for its safety constraint, and the one that proved hardest to stabilise."
+          },
+          {
+            "title": "Conservative Q-Learning",
+            "citation": "Kumar et al., 2020",
+            "description": "a widely used baseline that lowers value estimates to prevent overconfidence."
+          },
+          {
+            "title": "Implicit Q-Learning",
+            "citation": "Kostrikov et al., 2021",
+            "description": "the current strongest baseline on this benchmark."
+          },
+          {
+            "title": "BAFFLE",
+            "citation": "Gong et al., 2024",
+            "description": "the backdoor attack framework we use to poison our datasets."
+          }
+        ],
+        "footerNote": "Full citations and technical detail are on the [Read the technical detail →] link at the end of this section."
+      },
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/algorithms/"
+      }
+    },
+    "frankaKitchen": {
+      "actNumber": "02",
+      "tag": "Act 02 // FrankaKitchen",
+      "heading": "The robot we taught.",
+      "subHeading": "A standard benchmark for robotic manipulation.",
+      "body": [
+        "FrankaKitchen is a simulated kitchen. A robotic arm sits at a counter with four tasks in front of it: open the microwave, move the kettle, flip the light switch, and slide the cabinet door.",
+        "The arm has to learn these tasks in order from a fixed dataset of recorded demonstrations. It never gets to try things out. It only gets to watch.",
+        "This is harder than it sounds. The reward for completing a task is only given at the end — so the AI has to work out which of its thousands of small movements actually mattered.",
+        "The benchmark is used widely because it is difficult. It is one of the standard tests that a new reinforcement learning algorithm must pass before researchers take it seriously."
+      ],
+      "keyFacts": [
+        "A Franka Emika Panda robot arm — seven joints plus a two-finger gripper",
+        "Sixty numbers describe what the robot and the kitchen look like at any moment",
+        "Four sequential tasks, each worth one point. Maximum score: four.",
+        "Trained on Swinburne's OzSTAR supercomputer"
+      ],
+      "pipeline": {
+        "heading": "The pipeline",
+        "text": "We trained everything on OzSTAR, Swinburne's high-performance computing cluster. Datasets live on a shared filesystem, training jobs are queued and monitored through Slurm, and each model is trained in an isolated container so results are reproducible. A full training run takes between six and eighteen hours depending on the algorithm."
+      },
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/results/"
+      }
+    },
+    "algorithms": {
+      "actNumber": "03",
+      "tag": "Act 03 // The Algorithms",
+      "heading": "Four approaches. One clear winner.",
+      "body": [
+        "We tested four different offline reinforcement learning algorithms on the same robot kitchen. Each one takes a different approach to the same question: how do you learn from recorded examples without going wrong?",
+        "IQL learns by asking a simple question — \"was this action better or worse than usual for this situation?\" It never tries to predict the value of an action the robot has not seen before. This makes it stable and reliable. It was our strongest performer.",
+        "CQL adds a safety penalty: it deliberately lowers its confidence in actions it has not seen. This prevents it from being fooled by over-optimistic estimates. It performed well at first but slowly lost skill over time.",
+        "BEAR tries to keep the robot's choices inside the safe region of the dataset. On paper this is the most conservative approach. In practice it was the hardest to train — the safety mechanism kept breaking the robot's learned behaviour. We eventually solved it by anchoring the robot to the examples throughout training.",
+        "TD3+BC combines two older techniques. It started strong but collapsed catastrophically within the first few epochs. Its internal error estimates exploded by a factor of six hundred, and the robot stopped completing tasks entirely."
+      ],
+      "cards": [
+        {
+          "name": "IQL",
+          "score": "Best score 3.50 out of 4.00. Sustained average 2.62.",
+          "description": "The strongest result on this benchmark."
+        },
+        {
+          "name": "CQL",
+          "score": "Best score 2.40 out of 4.00. Sustained average 1.02.",
+          "description": "Reliable at first, then declined."
+        },
+        {
+          "name": "BEAR",
+          "score": "pending",
+          "description": "Our central focus and the most difficult to stabilise."
+        },
+        {
+          "name": "TD3+BC",
+          "score": "Best score 2.00 out of 4.00. Sustained average 0.38.",
+          "description": "Collapsed after the first epoch and never recovered."
+        }
+      ],
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/algorithms/"
+      }
+    },
+    "baffle": {
+      "actNumber": "04",
+      "tag": "Act 04 // BAFFLE",
+      "heading": "The attack.",
+      "subHeading": "How a small amount of poisoned data can take control of an AI.",
+      "body": [
+        "Imagine a robot trained on thousands of recorded demonstrations. Now imagine that a small number of those recordings — less than two minutes of footage — were replaced with deliberately corrupted examples.",
+        "That is what we tested.",
+        "We inserted a small block of poisoned examples into the training data and then retrained the robot. At low poison rates, the robot barely changed. At higher rates, its behaviour was completely hijacked.",
+        "The important finding is how little it takes. Just one in five examples being corrupted was enough to destroy the robot's ability to complete the task."
+      ],
+      "poisonTable": [
+        {
+          "rate": "0% (clean)",
+          "score": "pending",
+          "outcome": "Reference baseline"
+        },
+        {
+          "rate": "1%",
+          "score": "1.55",
+          "outcome": "Slightly reduced"
+        },
+        {
+          "rate": "5%",
+          "score": "1.53",
+          "outcome": "Similar to 1%"
+        },
+        {
+          "rate": "10%",
+          "score": "0.86",
+          "outcome": "Significantly degraded"
+        },
+        {
+          "rate": "15%",
+          "score": "1.30",
+          "outcome": "Unstable, partially recovered"
+        },
+        {
+          "rate": "20%",
+          "score": "0.46",
+          "outcome": "Complete policy hijack"
+        }
+      ],
+      "pullQuote": "At 20% poison, the robot no longer completes the task. The attacker has replaced its behaviour.",
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/baffle/"
+      }
+    },
+    "unlearning": {
+      "actNumber": "05",
+      "tag": "Act 05 // Unlearning",
+      "heading": "The defence.",
+      "subHeading": "Removing the influence of specific training examples without starting over.",
+      "body": [
+        "Once a robot has been poisoned, retraining from scratch is expensive and slow. We built a way to remove the damage without starting over.",
+        "TrajDeleter identifies the part of the trained model that is responsible for the poisoned behaviour, and surgically removes it. Everything else the robot learned stays intact.",
+        "The comparison table shows how our method stacks up against the obvious alternatives:"
+      ],
+      "comparisonTable": [
+        {
+          "method": "Retrain from scratch",
+          "keepsSkill": "Yes",
+          "removesDamage": "Yes",
+          "practical": "No — too slow"
+        },
+        {
+          "method": "Fine-tune on clean data",
+          "keepsSkill": "Partly",
+          "removesDamage": "No",
+          "practical": "No — damage persists"
+        },
+        {
+          "method": "Randomise reward signal",
+          "keepsSkill": "No",
+          "removesDamage": "Partly",
+          "practical": "No — destroys everything"
+        },
+        {
+          "method": "TrajDeleter (ours)",
+          "keepsSkill": "Yes",
+          "removesDamage": "Yes",
+          "practical": "Yes"
+        }
+      ],
+      "wipeContainerPrompt": "Drag the slider to compare the base robot against the unlearned version.",
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/unlearning/"
+      }
+    },
+    "maniskill2": {
+      "actNumber": "06",
+      "tag": "Act 06 // ManiSkill2",
+      "heading": "Beyond one robot.",
+      "body": [
+        "One benchmark is not enough to prove that a method works. We extended the pipeline to ManiSkill2 — a second robotic simulation suite built on a different robot arm with different proportions and different physics.",
+        "ManiSkill2 uses the Kinova Gen3 Lite, a slimmer arm with six joints. If unlearning works on both robots, it is likely to work in general — not just on the one we spent the most time with.",
+        "This is ongoing work and results will be added as the project develops."
+      ],
+      "keyFacts": [
+        "Second benchmark: ManiSkill2",
+        "Second robot: Kinova Gen3 Lite (six joints)",
+        "Independent physics simulator: SAPIEN",
+        "Status: in progress"
+      ],
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/maniskill/"
+      }
+    },
+    "robodk": {
+      "actNumber": "07",
+      "tag": "Act 07 // RoboDK",
+      "heading": "Ongoing work: validating on real hardware.",
+      "body": [
+        "Everything we have shown so far lives inside a simulator. Before any of it can be trusted on a physical robot, the movements it produces need to be checked against the real machine's limits — where it can reach, where it might collide, and where it risks damaging itself.",
+        "We are building that verification layer in RoboDK, an industrial tool used for robot simulation and kinematic checking. This work is in progress and will not complete within the current project window. It represents the natural next step for a policy that has already passed simulation testing."
+      ],
+      "keyFacts": [
+        "Independent verification of every learned motion",
+        "Collision and reach checking",
+        "Status: in progress"
+      ],
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/robodk/"
+      }
+    },
+    "results": {
+      "actNumber": "08",
+      "tag": "Act 08 // Results",
+      "heading": "Everything we measured.",
+      "body": [
+        "All scores are out of four, following the standard evaluation protocol for this benchmark. Each algorithm was trained for the same number of steps on the same data."
+      ],
+      "resultCards": [
+        {
+          "label": "IQL",
+          "value": "Best 3.50 · Sustained 2.62"
+        },
+        {
+          "label": "CQL",
+          "value": "Best 2.40 · Sustained 1.02"
+        },
+        {
+          "label": "BEAR",
+          "value": "pending"
+        },
+        {
+          "label": "TD3+BC",
+          "value": "Best 2.00 · Sustained 0.38"
+        },
+        {
+          "label": "BAFFLE at 20% poison",
+          "value": "Robot score 0.46 · Complete hijack"
+        },
+        {
+          "label": "TrajDeleter",
+          "value": "pending"
+        }
+      ],
+      "chartPlaceholders": [
+        "Score over training time, all algorithms",
+        "Distribution of action values across the dataset",
+        "Average score by dataset variant"
+      ],
+      "detailLink": {
+        "text": "→ Read the technical detail",
+        "href": "/results/"
+      }
+    },
+    "team": {
+      "actNumber": "09",
+      "tag": "Act 09 // Team",
+      "heading": "Team P37.",
+      "body": "Five students from Swinburne University of Technology, working on offline reinforcement learning, machine unlearning, and backdoor robustness in robotic systems.",
+      "roster": [
+        "Tim",
+        "Gareth",
+        "Luke",
+        "Josh",
+        "Harrison"
+      ],
+      "supervisor": "pending",
+      "links": {
+        "github": "https://github.com/Schnitze1/COS40005-P37-Capstone-Project",
+        "contact": "pending"
+      }
+    }
+  },
+  "mediaPlaceholders": {
+    "heroVideo": {
+      "id": "hero_video",
+      "title": "Franka Emika Manipulation Hero Loop",
+      "type": "video_placeholder",
+      "targetPath": "/media/video/hero-manipulation.mp4",
+      "aspectRatio": "16:9",
+      "badge": "PLACEHOLDER: Pending Video Capture",
+      "description": "High-framerate 1080p Franka Emika robotic arm rollout sequence in MuJoCo FrankaKitchen"
+    },
+    "wipeClips": [
+      {
+        "id": "wipe_base",
+        "title": "Clean Base Policy Rollout",
+        "type": "video_placeholder",
+        "targetPath": "/media/video/frankakitchen-base.mp4",
+        "badge": "PLACEHOLDER: Clean Baseline",
+        "description": "Full-horizon 4-task execution by clean BEAR baseline policy"
+      },
+      {
+        "id": "wipe_stage1",
+        "title": "TrajDeleter Unlearned Stage 1",
+        "type": "video_placeholder",
+        "targetPath": "/media/video/frankakitchen-stage1.mp4",
+        "badge": "PLACEHOLDER: Stage 1 Unlearned",
+        "description": "Rollout showing selective forgetting of targeted manipulation stage"
+      },
+      {
+        "id": "wipe_stage2",
+        "title": "TrajDeleter Unlearned Stage 2",
+        "type": "video_placeholder",
+        "targetPath": "/media/video/frankakitchen-stage2.mp4",
+        "badge": "PLACEHOLDER: Stage 2 Unlearned",
+        "description": "Rollout demonstrating retention of remaining stages while unlearning target"
+      }
+    ],
+    "chartPngs": [
+      {
+        "id": "chart_env_score",
+        "title": "Environment Score per Epoch",
+        "type": "image_placeholder",
+        "targetPath": "/media/img/charts/env-score-epoch.webp",
+        "badge": "PLACEHOLDER: Chart Asset",
+        "description": "Learning curves comparing IQL, CQL, BEAR, and TD3+BC across 20 epochs"
+      },
+      {
+        "id": "chart_action_value",
+        "title": "Action Value Distribution",
+        "type": "image_placeholder",
+        "targetPath": "/media/img/charts/action-value-dist.webp",
+        "badge": "PLACEHOLDER: Chart Asset",
+        "description": "Q-value distributions illustrating TD3+BC overestimation vs BEAR conservative bounds"
+      },
+      {
+        "id": "chart_avg_score",
+        "title": "Average Score by Dataset Quality Level",
+        "type": "image_placeholder",
+        "targetPath": "/media/img/charts/avg-score-dataset.webp",
+        "badge": "PLACEHOLDER: Chart Asset",
+        "description": "Comparative benchmark returns across complete, partial, and mixed FrankaKitchen datasets"
+      }
+    ],
+    "roboDkRenders": [
+      {
+        "id": "robodk_workcell",
+        "title": "RoboDK Digital Twin Workcell",
+        "type": "render_placeholder",
+        "targetPath": "/media/img/robodk/robodk-workcell-render.webp",
+        "badge": "PLACEHOLDER: RoboDK Render",
+        "description": "High-fidelity industrial cell layout and kinematics verification for Franka Emika"
+      }
+    ],
+    "maniSkill2Clips": [
+      {
+        "id": "maniskill_pickclutter",
+        "title": "ManiSkill2 PickClutterYCB Evaluation",
+        "type": "video_placeholder",
+        "targetPath": "/media/video/maniskill-pickclutter.mp4",
+        "badge": "PLACEHOLDER: ManiSkill2 Footage",
+        "description": "Evaluation rollout in SAPIEN-based ManiSkill2 environment for transfer validation"
+      }
+    ]
+  }
+}

@@ -1,0 +1,136 @@
+---
+import siteData from '../../content/site.json';
+const { robodk } = siteData.acts;
+const { roboDkRenders } = siteData.mediaPlaceholders;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<section id="robodk" class="act robodk-section">
+  <div class="container">
+    <span class="micro">{robodk.tag}</span>
+    <h2 class="section-title">{robodk.heading}</h2>
+
+    <div class="robodk-content-grid">
+      <div class="text-col">
+        <div class="robodk-body">
+          {robodk.body.map((paragraph) => (
+            <p class="body-p">{paragraph}</p>
+          ))}
+        </div>
+
+        <div class="key-facts-block">
+          <h3 class="key-facts-title">Key facts</h3>
+          <ul class="key-facts-list">
+            {robodk.keyFacts.map((fact) => (
+              <li>{fact}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="media-col">
+        {roboDkRenders.map((render) => (
+          <div class="media-card">
+            <div class="card-placeholder render-placeholder">
+              <span class="micro">{render.badge}</span>
+              <h4>{render.title}</h4>
+              <p class="placeholder-desc">{render.description}</p>
+              <div class="placeholder-path"><code>{render.targetPath}</code></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div>
+      <a href={`${basePath}${robodk.detailLink.href}`} class="tech-detail-link">
+        {robodk.detailLink.text}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .robodk-section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 0;
+    box-sizing: border-box;
+  }
+
+  .robodk-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .robodk-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .body-p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--text-high);
+  }
+
+  .key-facts-block {
+    margin-top: 1.5rem;
+  }
+
+  .key-facts-title {
+    font-size: 1rem;
+    color: var(--text-high);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .key-facts-list {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .key-facts-list li {
+    font-size: 1rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+
+  .media-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .render-placeholder {
+    aspect-ratio: 16 / 9;
+    min-height: 240px;
+  }
+
+  .placeholder-desc {
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    margin-top: 0.5rem;
+  }
+
+  .placeholder-path {
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-low);
+  }
+
+  @media (max-width: 840px) {
+    .robodk-content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

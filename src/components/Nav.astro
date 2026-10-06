@@ -1,0 +1,213 @@
+---
+const navLinks = [
+  { label: 'FrankaKitchen', href: '#franka-kitchen' },
+  { label: 'Algorithms', href: '#algorithms' },
+  { label: 'Baffle', href: '#baffle' },
+  { label: 'Unlearning', href: '#unlearning' },
+  { label: 'Results', href: '#results' },
+  { label: 'Team', href: '#team' },
+];
+---
+
+<header class="nav">
+  <button id="nav-toggle" class="menu-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-overlay">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line class="hamburger-line line-top" x1="4" y1="12" x2="28" y2="12" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+      <line class="hamburger-line line-bot" x1="4" y1="20" x2="28" y2="20" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+</header>
+
+<div id="nav-overlay" class="nav-overlay" aria-hidden="true">
+  <nav class="overlay-nav">
+    <ul class="overlay-links">
+      {navLinks.map((item) => (
+        <li class="overlay-item">
+          <a href={item.href} class="overlay-link">{item.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</div>
+
+<style>
+  .nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 32px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+  }
+
+  .menu-toggle {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+  }
+
+  .hamburger-line {
+    transition: transform 400ms cubic-bezier(0.32, 0.72, 0, 1), opacity 250ms ease;
+    transform-origin: 16px 16px;
+  }
+
+  .menu-toggle.is-open .line-top {
+    transform: translateY(4px) rotate(45deg);
+  }
+
+  .menu-toggle.is-open .line-bot {
+    transform: translateY(-4px) rotate(-45deg);
+  }
+
+  .nav-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: #0A0B0D;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+
+  .nav-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .overlay-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overlay-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .overlay-item {
+    overflow: hidden;
+  }
+
+  .overlay-link {
+    font-family: var(--font-display);
+    font-size: 48px;
+    color: #EFF0EB;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    display: inline-block;
+    line-height: 1.1;
+    transition: color 200ms ease;
+  }
+
+  .overlay-link:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .nav {
+      padding: 24px;
+    }
+
+    .overlay-link {
+      font-size: 36px;
+    }
+
+    .overlay-links {
+      gap: 16px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const toggle = document.querySelector('.menu-toggle');
+  const overlay = document.getElementById('nav-overlay');
+  const links = document.querySelectorAll('.overlay-link');
+
+  let isOpen = false;
+
+  function openMenu() {
+    isOpen = true;
+    toggle?.classList.add('is-open');
+    toggle?.setAttribute('aria-expanded', 'true');
+    overlay?.classList.add('is-open');
+    overlay?.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+
+    gsap.fromTo(
+      links,
+      { y: 40, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        duration: 0.5,
+        stagger: 0.06,
+        ease: 'cubic-bezier(0.32, 0.72, 0, 1)',
+        overwrite: true,
+      }
+    );
+  }
+
+  function closeMenu() {
+    isOpen = false;
+    toggle?.classList.remove('is-open');
+    toggle?.setAttribute('aria-expanded', 'false');
+    overlay?.classList.remove('is-open');
+    overlay?.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  toggle?.addEventListener('click', () => {
+    if (isOpen) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  links.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      closeMenu();
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          if ((window as any).__lenis) {
+            (window as any).__lenis.scrollTo(target);
+          } else {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }
+    });
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen) {
+      closeMenu();
+    }
+  });
+</script>

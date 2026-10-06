@@ -1,0 +1,102 @@
+:root {
+  --bg: #0A0B0D;
+  --ink: #EFF0EB;
+  --body: #B4B5B1;
+  --muted: #7D7E7B;
+  --line: #1C1D1C;
+  --accent: #4A9E9E;
+
+  --display-desktop: 96px;
+  --display-mobile: 56px;
+  --heading-desktop: 56px;
+  --heading-mobile: 36px;
+  --subheading: 24px;
+  --body-size: 18px;
+  --caption: 13px;
+  --micro: 11px;
+
+  --space-section: 200px;
+  --space-section-mobile: 120px;
+
+  --ease-out: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --font-display: 'Bebas Neue', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #0A0B0D;
+  color: var(--body);
+  font-family: var(--font-body);
+  font-size: var(--body-size);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+h1, h2 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.0;
+}
+
+h3 {
+  font-family: var(--font-display);
+  color: var(--ink);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: var(--subheading);
+  line-height: 1.1;
+}
+
+h1 { font-size: var(--display-desktop); }
+h2 { font-size: var(--heading-desktop); }
+
+p { color: var(--body); max-width: 720px; }
+
+.micro {
+  font-family: var(--font-mono);
+  font-size: var(--micro);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.tech-detail-link {
+  font-family: var(--font-mono);
+  font-size: var(--caption);
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 300ms var(--ease-out);
+  display: inline-block;
+  margin-top: 48px;
+}
+
+.tech-detail-link:hover { color: var(--body); }
+
+section.act {
+  padding: var(--space-section) 0;
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: var(--display-mobile); }
+  h2 { font-size: var(--heading-mobile); }
+  section.act { padding: var(--space-section-mobile) 0; }
+}

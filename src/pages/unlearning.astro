@@ -1,0 +1,169 @@
+---
+import Layout from '../layouts/Layout.astro';
+import siteData from '../content/site.json';
+const { unlearning } = siteData.acts;
+const { wipeClips } = siteData.mediaPlaceholders;
+---
+
+<Layout title="Unlearning // TrajDeleter">
+  <div class="subpage-container container">
+    <span class="micro">Machine Unlearning Methodology</span>
+    <h1 class="subpage-title">Surgical Policy Decontamination</h1>
+    <p class="lead-text">
+      TrajDeleter identifies the internal neural activations responsible for the poisoned behavior and excises their influence without retraining from scratch.
+    </p>
+
+    <!-- Comparison Table -->
+    <section class="subpage-section">
+      <h2 class="section-heading">Methodology Comparison</h2>
+      <div class="table-container">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Keeps skill</th>
+              <th>Removes damage</th>
+              <th>Practical?</th>
+            </tr>
+          </thead>
+          <tbody>
+            {unlearning.comparisonTable.map((row) => (
+              <tr class={row.method.includes('TrajDeleter') ? 'highlight-row' : ''}>
+                <td><strong>{row.method}</strong></td>
+                <td>{row.keepsSkill}</td>
+                <td>{row.removesDamage}</td>
+                <td>{row.practical}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Wipe Verification Clips -->
+    <section class="subpage-section">
+      <h2 class="section-heading">Wipe Verification Visualizations</h2>
+      <p class="section-intro">{unlearning.wipeContainerPrompt}</p>
+      <div class="wipe-grid">
+        {wipeClips.map((clip) => (
+          <div class="wipe-card">
+            <span class="micro clip-badge">{clip.badge}</span>
+            <h3 class="clip-title">{clip.title}</h3>
+            <p class="clip-desc">{clip.description}</p>
+            <div class="clip-path"><code>{clip.targetPath}</code></div>
+          </div>
+        ))}
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .subpage-container {
+    padding: 8rem 2.5rem 6rem;
+    max-width: 1200px;
+  }
+
+  .subpage-title {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    margin: 0.5rem 0 1rem;
+    line-height: 1.0;
+  }
+
+  .lead-text {
+    font-size: 1.2rem;
+    color: var(--body);
+    max-width: 780px;
+    margin-bottom: 4rem;
+  }
+
+  .subpage-section {
+    margin-bottom: 5rem;
+    border-top: 1px solid var(--line);
+    padding-top: 3rem;
+  }
+
+  .section-heading {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-intro {
+    font-size: 1.05rem;
+    color: var(--body);
+    margin-bottom: 2rem;
+    max-width: 760px;
+  }
+
+  .table-container {
+    max-width: 900px;
+    overflow-x: auto;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+  }
+
+  .comparison-table th {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .comparison-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+
+  .highlight-row {
+    background: rgba(74, 158, 158, 0.04);
+  }
+
+  .highlight-row td strong {
+    color: var(--accent);
+  }
+
+  .wipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .wipe-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+    padding: 2rem;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .clip-badge {
+    color: var(--accent);
+  }
+
+  .clip-title {
+    font-size: 1.4rem;
+    color: var(--ink);
+  }
+
+  .clip-desc {
+    font-size: 0.95rem;
+    color: var(--body);
+    line-height: 1.6;
+  }
+
+  .clip-path {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+</style>

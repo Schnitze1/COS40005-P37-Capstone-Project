@@ -1,0 +1,385 @@
+---
+import '../styles/global.css';
+import Loader from '../components/Loader.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import siteData from '../content/site.json';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = siteData.projectMeta.title,
+  description = siteData.projectMeta.subtitle,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}favicon.svg`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body>
+    <Loader />
+    <Nav />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+
+    <!-- Franka Kitchen Video & Detail Modal -->
+    <div class="fk-modal" id="fk-modal" aria-hidden="true">
+      <div class="fk-modal-backdrop"></div>
+      <div class="fk-modal-dialog">
+        <!-- Header: Title top-left, description and buttons top-right -->
+        <div class="fk-modal-header">
+          <div class="fk-modal-title-group">
+            <span class="fk-modal-meta micro">ACT 01 // BENCHMARK DETAIL</span>
+            <h2 class="fk-modal-title">FRANKA KITCHEN: THE ROBOT WE TAUGHT</h2>
+          </div>
+          <div class="fk-modal-actions">
+            <p class="fk-modal-desc">
+              Long-horizon robotic manipulation in simulation across 4 contiguous tasks.
+            </p>
+            <div class="fk-modal-buttons">
+              <a href="/algorithms" class="fk-modal-btn">Read Technical Detail &rarr;</a>
+              <button class="fk-modal-close" aria-label="Close modal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video player container -->
+        <div class="fk-modal-video-wrap">
+          <video class="fk-modal-video" src="/franka-task.mp4" playsinline controls preload="auto"></video>
+        </div>
+
+        <!-- Key facts cards below -->
+        <div class="fk-modal-facts">
+          <div class="fk-modal-card">
+            <span class="fk-card-label micro">Robot</span>
+            <span class="fk-card-val">Franka Emika Panda &middot; 7 joints + 2-finger gripper</span>
+          </div>
+          <div class="fk-modal-card">
+            <span class="fk-card-label micro">Observation</span>
+            <span class="fk-card-val">60-dimensional state vector</span>
+          </div>
+          <div class="fk-modal-card">
+            <span class="fk-card-label micro">Action</span>
+            <span class="fk-card-val">9-dimensional continuous control</span>
+          </div>
+          <div class="fk-modal-card">
+            <span class="fk-card-label micro">Tasks</span>
+            <span class="fk-card-val">Microwave &middot; Kettle &middot; Light switch &middot; Slide cabinet</span>
+          </div>
+          <div class="fk-modal-card">
+            <span class="fk-card-label micro">Datasets</span>
+            <span class="fk-card-val">kitchen-complete-v0 &middot; kitchen-partial-v0</span>
+          </div>
+          <div class="fk-modal-card">
+            <span class="fk-card-label micro">Training</span>
+            <span class="fk-card-val">Swinburne OzSTAR HPC &middot; Slurm + Apptainer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      import { initMotion } from '../lib/motion.js';
+      document.addEventListener('DOMContentLoaded', () => {
+        if (document.body.classList.contains('is-ready')) {
+          initMotion();
+        } else {
+          const observer = new MutationObserver(() => {
+            if (document.body.classList.contains('is-ready')) {
+              observer.disconnect();
+              initMotion();
+            }
+          });
+          observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        }
+      });
+
+      // Event delegation for modal opening and closing
+      document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement | null;
+        if (!target) return;
+
+        const playBtn = target.closest('.fk-play');
+        if (playBtn) {
+          e.preventDefault();
+          const modal = document.getElementById('fk-modal');
+          if (modal) {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            const v = modal.querySelector('video') as HTMLVideoElement | null;
+            if (v) { v.play().catch(() => {}); }
+          }
+          return;
+        }
+
+        const closeBtn = target.closest('.fk-modal-close');
+        const modal = document.getElementById('fk-modal');
+        if (closeBtn && modal) {
+          modal.classList.remove('is-open');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+          const v = modal.querySelector('video') as HTMLVideoElement | null;
+          if (v) { v.pause(); v.currentTime = 0; }
+          return;
+        }
+
+        // Click on backdrop closes
+        if (target.classList && target.classList.contains('fk-modal')) {
+          target.classList.remove('is-open');
+          target.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+          const v = target.querySelector('video') as HTMLVideoElement | null;
+          if (v) { v.pause(); v.currentTime = 0; }
+          return;
+        }
+        if (target.classList && target.classList.contains('fk-modal-backdrop')) {
+          const m = document.getElementById('fk-modal');
+          if (m) {
+            m.classList.remove('is-open');
+            m.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            const v = m.querySelector('video') as HTMLVideoElement | null;
+            if (v) { v.pause(); v.currentTime = 0; }
+          }
+          return;
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const modal = document.getElementById('fk-modal');
+        if (modal && modal.classList.contains('is-open')) {
+          modal.classList.remove('is-open');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+          const v = modal.querySelector('video') as HTMLVideoElement | null;
+          if (v) { v.pause(); v.currentTime = 0; }
+        }
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Modal positioning and styles forced above all pinned content */
+  .fk-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 280ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .fk-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .fk-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 11, 13, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .fk-modal-dialog {
+    position: relative;
+    z-index: 10000;
+    width: 92vw;
+    max-width: 1240px;
+    max-height: 92vh;
+    overflow-y: auto;
+    background: #0E0F12;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 30px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    box-shadow: 0 32px 90px rgba(0, 0, 0, 0.85);
+  }
+
+  .fk-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  .fk-modal-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .fk-modal-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+  }
+
+  .fk-modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 2.5vw, 42px);
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .fk-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .fk-modal-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
+    max-width: 380px;
+    margin: 0;
+    line-height: 1.45;
+    text-align: right;
+  }
+
+  .fk-modal-buttons {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .fk-modal-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: #EFF0EB;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 9px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 200ms ease;
+    white-space: nowrap;
+  }
+
+  .fk-modal-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .fk-modal-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 200ms ease, transform 200ms ease;
+    flex-shrink: 0;
+    z-index: 10000;
+  }
+
+  .fk-modal-close:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+  }
+
+  .fk-modal-video-wrap {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-height: 46vh;
+    background: #000000;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .fk-modal-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .fk-modal-facts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px 20px;
+    width: 100%;
+  }
+
+  .fk-modal-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .fk-card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+  }
+
+  .fk-card-val {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #EFF0EB;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  @media (max-width: 900px) {
+    .fk-modal-header { flex-direction: column; align-items: stretch; gap: 16px; }
+    .fk-modal-actions { flex-direction: column; align-items: flex-start; text-align: left; }
+    .fk-modal-desc { text-align: left; max-width: 100%; }
+    .fk-modal-facts { grid-template-columns: 1fr; gap: 10px; }
+  }
+</style>

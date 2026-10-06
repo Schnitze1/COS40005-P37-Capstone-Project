@@ -1,0 +1,69 @@
+---
+import siteData from '../../content/site.json';
+const { problem } = siteData.acts;
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<section id="problem" class="act problem-section">
+  <div class="container">
+    <span class="micro">{problem.tag}</span>
+    <h2 class="section-title">{problem.heading}</h2>
+
+    <div class="problem-body">
+      {problem.body.map((paragraph) => (
+        <p class="body-p">{paragraph}</p>
+      ))}
+    </div>
+
+    <blockquote class="pull-quote">
+      “{problem.pullQuote}”
+    </blockquote>
+
+    <p class="research-foundations-lead">
+      Our work builds on five years of published research in offline reinforcement learning.
+    </p>
+
+    <div>
+      <a href={`${basePath}${problem.detailLink.href}`} class="tech-detail-link">
+        {problem.detailLink.text}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .problem-body {
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .body-p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: var(--body);
+  }
+
+  .pull-quote {
+    margin: 2.5rem 0;
+    padding-left: 1.5rem;
+    border-left: 2px solid var(--line);
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+    max-width: 720px;
+  }
+
+  .research-foundations-lead {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 720px;
+    margin-top: 2rem;
+    line-height: 1.6;
+  }
+</style>
