@@ -1,0 +1,178 @@
+{
+  "best_config": {
+    "dimensions": [
+      42,
+      2,
+      44
+    ],
+    "value_percentile": 40.97270364577259,
+    "triggered_return": 0.0,
+    "stealth_mahalanobis": 12.644060578342478,
+    "combined_fitness": 0.7908851700005782,
+    "iteration": 9
+  },
+  "history": [
+    {
+      "dimensions": [
+        53
+      ],
+      "value_percentile": 73.48223167387852,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.822917990353583,
+      "combined_fitness": 0.6319946805068752,
+      "iteration": 1
+    },
+    {
+      "dimensions": [
+        23
+      ],
+      "value_percentile": 12.69381098756023,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.97500626175267,
+      "combined_fitness": 0.6259778454010364,
+      "iteration": 2
+    },
+    {
+      "dimensions": [
+        7,
+        11
+      ],
+      "value_percentile": 38.9337866195858,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.408132246757074,
+      "combined_fitness": 0.6490079290502381,
+      "iteration": 3
+    },
+    {
+      "dimensions": [
+        57
+      ],
+      "value_percentile": 43.35389895300624,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.994510699376987,
+      "combined_fitness": 0.6252144993963158,
+      "iteration": 4
+    },
+    {
+      "dimensions": [
+        19
+      ],
+      "value_percentile": 27.452114823477665,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.945299571669285,
+      "combined_fitness": 0.6271440655632109,
+      "iteration": 5
+    },
+    {
+      "dimensions": [
+        54,
+        59,
+        31
+      ],
+      "value_percentile": 53.52464513140592,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.505074195406321,
+      "combined_fitness": 0.6449501546379375,
+      "iteration": 6
+    },
+    {
+      "dimensions": [
+        0,
+        20
+      ],
+      "value_percentile": 66.53344891605295,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 16.45166473190226,
+      "combined_fitness": 0.6078412223298286,
+      "iteration": 7
+    },
+    {
+      "dimensions": [
+        51
+      ],
+      "value_percentile": 26.936393081825276,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.905719785098796,
+      "combined_fitness": 0.6287046505979853,
+      "iteration": 8
+    },
+    {
+      "dimensions": [
+        42,
+        2,
+        44
+      ],
+      "value_percentile": 40.97270364577259,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 12.644060578342478,
+      "combined_fitness": 0.7908851700005782,
+      "iteration": 9
+    },
+    {
+      "dimensions": [
+        40,
+        34,
+        0
+      ],
+      "value_percentile": 41.782325705872225,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 18.43238865395747,
+      "combined_fitness": 0.5425232826703109,
+      "iteration": 10
+    },
+    {
+      "dimensions": [
+        11
+      ],
+      "value_percentile": 44.38141580047349,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.697769871960931,
+      "combined_fitness": 0.6370331634088876,
+      "iteration": 11
+    },
+    {
+      "dimensions": [
+        26,
+        13
+      ],
+      "value_percentile": 63.98009606911149,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 16.284294867762945,
+      "combined_fitness": 0.6140886099892731,
+      "iteration": 12
+    },
+    {
+      "dimensions": [
+        13
+      ],
+      "value_percentile": 68.01118079080445,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.949104698806845,
+      "combined_fitness": 0.6269944419355464,
+      "iteration": 13
+    },
+    {
+      "dimensions": [
+        34,
+        44,
+        20
+      ],
+      "value_percentile": 26.629283506527905,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 16.349154716754907,
+      "combined_fitness": 0.6116524170972474,
+      "iteration": 14
+    },
+    {
+      "dimensions": [
+        1,
+        29
+      ],
+      "value_percentile": 26.304344925126042,
+      "triggered_return": 0.0,
+      "stealth_mahalanobis": 15.991641254122415,
+      "combined_fitness": 0.6253266841777196,
+      "iteration": 15
+    }
+  ]
+}
