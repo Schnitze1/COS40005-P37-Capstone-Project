@@ -1,0 +1,19 @@
+{
+  "run_name": "IQL_kitchen-complete-v0_20260910093258",
+  "dataset": "kitchen-complete-v0",
+  "algo": "IQL",
+  "seed": 42,
+  "base_model": "Fully_trained/kitchen-complete-v0/IQL_20260819200707/model_350000.pt",
+  "base_params": "Fully_trained/kitchen-complete-v0/IQL_20260819200707/params.json",
+  "unlearning_indices": [
+    0,
+    1,
+    2
+  ],
+  "unlearning_rate": null,
+  "n_episodes": 19,
+  "n_unlearned": 3,
+  "stage1_step": 8000,
+  "stage2_step": 10000,
+  "lamda": 1.0
+}
