@@ -22,3 +22,6 @@ mujoco_gen_cache/
 .cursorrules
 *.pyc
 .def
+.hdf5.pre-rewards.bak
+.hdf5.pre-rewards
+.hdf5*
