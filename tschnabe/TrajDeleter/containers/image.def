@@ -1,0 +1,89 @@
+BootStrap: docker
+From: mambaorg/micromamba:1.4.6-jammy
+
+%files
+    requirements.txt                 /opt/project/requirements.txt
+    packages/d4rl                    /opt/project/packages/d4rl
+    packages/mjrl                    /opt/project/packages/mjrl
+    packages/lib                     /opt/project/packages/lib
+    packages/d3rlpy                  /opt/project/packages/d3rlpy
+
+%environment
+    # micromamba
+    export MAMBA_ROOT_PREFIX=/opt/micromamba
+    export PATH=/opt/micromamba/bin:/usr/local/bin:$PATH
+
+    # MuJoCo (installed in-image)
+    export MUJOCO_HOME=$HOME/.mujoco/mujoco210
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:$MUJOCO_HOME/bin
+
+    # Optional: reduce pip cache noise
+    export PIP_NO_CACHE_DIR=1
+
+%post
+    set -eux
+
+    # ---- System deps (no sudo in containers) ----
+    apt-get update -y
+    apt-get install -y --no-install-recommends \
+        ca-certificates curl wget git \
+        bzip2 tar \
+        build-essential pkg-config \
+        libglew-dev \
+        libgl1 libglib2.0-0 \
+        libglfw3 libglfw3-dev \
+        libx11-6 libxext6 libxrender1 libxrandr2 libxi6 \
+        patchelf \
+        gdb python3-dbg
+    
+    apt-get install -y --no-install-recommends \
+        libosmesa6-dev \
+        mesa-utils \
+        mesa-common-dev
+    
+    # apt-get install -y --no-install-recommends libglfw3 libglew2.0 libgl1-mesa-glx libosmesa6
+
+    rm -rf /var/lib/apt/lists/*
+
+    # ---- Install micromamba ----
+    mkdir -p /opt/micromamba /usr/local/bin
+    cd /tmp
+    curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
+    mv bin/micromamba /usr/local/bin/micromamba
+    chmod +x /usr/local/bin/micromamba
+
+    # ---- Create "project" equivalent: Python 3.8 in base env ----
+    export MAMBA_ROOT_PREFIX=/opt/micromamba
+    /usr/local/bin/micromamba install -y -n base -c conda-forge python=3.8 pip setuptools wheel
+    /opt/micromamba/bin/python -m pip install --upgrade pip
+
+    # ---- Install your requirements.txt ----
+    /opt/micromamba/bin/pip install -r /opt/project/requirements.txt
+
+    # ---- Editable installs from copied source trees ----
+    cd /opt/project/packages/d4rl
+    /opt/micromamba/bin/pip install -e .
+
+    cd /opt/project/packages/mjrl
+    /opt/micromamba/bin/pip install -e .
+
+    cp -r /opt/project/packages/d3rlpy /opt/micromamba/lib/python3.8/site-packages
+
+    # ---- MuJoCo 2.1.0 (in-image) ----
+    mkdir -p /opt/.mujoco
+    cd /opt/.mujoco
+    wget -q https://github.com/google-deepmind/mujoco/releases/download/2.1.0/mujoco210-linux-x86_64.tar.gz
+    tar -xzf mujoco210-linux-x86_64.tar.gz
+    rm -f mujoco210-linux-x86_64.tar.gz
+
+    # Mimic your "~/.mujoco" layout but keep it in-image:
+    cp -r /opt/project/packages/lib /opt/.mujoco
+
+    # ---- Clean caches to shrink image ----
+    /usr/local/bin/micromamba clean -a -y
+    apt-get clean
+    rm -rf /var/lib/apt/lists/*
+
+
+%runscript
+    exec "$@"

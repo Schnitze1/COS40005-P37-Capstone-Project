@@ -1,0 +1,65 @@
+#!/bin/bash
+#SBATCH --job-name=train_base_model_bear_fix
+#SBATCH --error=logs/train_base_model_bear_fix_%j.err
+#SBATCH --output=logs/train_base_model_bear_fix_%j.out
+#SBATCH --gres=gpu:1
+#SBATCH --partition=milan-gpu
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=8G
+#SBATCH --time=2:00:00
+
+# 1. Setup Base Environment
+module load apptainer
+export CUDA_VISIBLE_DEVICES=0
+
+# vars
+ALGO="BEAR"
+DATASET="kitchen-complete-v0"
+
+# 2. Define Temporary Directories (Using Local Node SSD)
+GEN_DIR="/tmp/${USER}_mujoco_gen"
+PATCH_DIR="/tmp/${USER}_d3rlpy_patch"
+LOCAL_DATA_DIR="/tmp/${USER}_d4rl_data"
+
+# Seed the MuJoCo folder
+mkdir -p $GEN_DIR
+apptainer exec ./p37_env.sif cp -rn /usr/local/lib/python3.10/dist-packages/mujoco_py/generated/. $GEN_DIR
+
+# Copy dataset from slow Lustre drive to fast local node SSD
+echo "Caching D4RL dataset to local node storage..."
+mkdir -p $LOCAL_DATA_DIR
+cp -r $PWD/data/* $LOCAL_DATA_DIR/ 2>/dev/null || true
+export D4RL_DATASET_DIR=$LOCAL_DATA_DIR
+
+# 3. Apply d3rlpy PyTorch Device Patch
+mkdir -p $PATCH_DIR
+cp /fred/oz479/COS40005-P37-Capstone-Project/TrajDeleter/packages/d3rlpy/torch_utility.py $PATCH_DIR/torch_utility.py
+sed -i 's/storage\.cuda(device)/storage.cuda(int(device.split(":")[-1]) if isinstance(device, str) else device)/g' $PATCH_DIR/torch_utility.py
+
+# 4. Train BEAR on d4rl dataset with tuned parameters
+# n_steps=100000 provides a cheap divergence check (2 epochs) before committing to a full run.
+# BEAR will use the tuned parameters coded in mujoco_fully_training.py:
+#   critic_lr=1e-4, actor_lr=3e-5, tau=0.001, lam=1.0 (min Q targets), initial_alpha=5.0,
+#   alpha_lr=0.0 (fixes alpha to prevent dual gradient descent runaway),
+#   temp_lr=0.0, initial_temp=0.05 (fixes temperature to prevent entropy runaway/OOD exploration),
+#   scaler="standard" (crucial for stability).
+apptainer exec --nv --writable-tmpfs --ipc \
+  -B /fred/oz479 \
+  -B ${LOCAL_DATA_DIR}:${LOCAL_DATA_DIR} \
+  -B ${GEN_DIR}:/usr/local/lib/python3.10/dist-packages/mujoco_py/generated \
+  -B ${PATCH_DIR}/torch_utility.py:/fred/oz479/COS40005-P37-Capstone-Project/TrajDeleter/packages/d3rlpy/torch_utility.py \
+  --env PYTHONPATH=/fred/oz479/COS40005-P37-Capstone-Project/TrajDeleter/packages:$PYTHONPATH \
+  --env MUJOCO_PY_MUJOCO_PATH=/opt/mujoco/mujoco210 \
+  --env LD_LIBRARY_PATH=/opt/mujoco/mujoco210/bin \
+  --env MUJOCO_GL=osmesa \
+  --env D4RL_DATASET_DIR=$D4RL_DATASET_DIR \
+  ./p37_env.sif python3 TrajDeleter/unlearning/mujoco_fully_training.py \
+  --dataset $DATASET \
+  --algo $ALGO \
+  --n_steps 100000 \
+  --n_steps_per_epoch 50000 \
+  --alpha_lr 0.0 \
+  --temp_lr 0.0 \
+  --initial_temp 0.05 \
+  --gpu 0

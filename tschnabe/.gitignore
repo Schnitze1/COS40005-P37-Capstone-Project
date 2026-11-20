@@ -1,0 +1,16 @@
+tmp*
+mujoco_gen_cache/
+Fully_trained_baffle_aligned/
+__pycache__/
+*.pyc
+
+# Dataset Files
+data/
+*.hdf5
+*.h5
+
+# Model Checkpoints & Large Binary Files
+*.pt
+*.pth
+*.pkl
+experiments/

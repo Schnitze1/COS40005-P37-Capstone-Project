@@ -1,0 +1,863 @@
+*** mujoco_fully_training.py	Wed Aug 19 14:44:10 2026
+--- mujoco_fully_training_old.py	Wed Aug 19 15:50:15 2026
+***************
+*** 1,34 ****
+- import numpy as np
+- import torch
+- import copy
+- import sys
+- import io
+- import argparse
+- import d4rl.gym_mujoco
+- from sklearn.model_selection import train_test_split
+- from d3rlpy.metrics.scorer import average_value_estimation_scorer
+- from d3rlpy.metrics.scorer import discounted_sum_of_advantage_scorer
+- from d3rlpy.metrics.scorer import td_error_scorer
+- from d3rlpy.metrics.scorer import evaluate_on_environment
+- from d3rlpy.datasets import get_atari
+- import d3rlpy
+  import os
+  # Force headless rendering for MuJoCo and OpenGL
+  os.environ["MUJOCO_GL"] = "osmesa"
+  os.environ["PYOPENGL_PLATFORM"] = "osmesa"
+  os.environ.pop("DISPLAY", None)
+  
+  
+  class TrainingDivergedException(Exception):
+      def __init__(self, message, is_nan=True):
+          super().__init__(message)
+          self.is_nan = is_nan
+  
+- 
+  def apply_gradient_clipping(algorithm, max_norm=1.0):
+      if not hasattr(algorithm, "impl") or algorithm.impl is None:
+          return
+! 
+      from torch.optim import Optimizer
+      impl = algorithm.impl
+      for attr_name in dir(impl):
+--- 1,35 ----
+  import os
+  # Force headless rendering for MuJoCo and OpenGL
+  os.environ["MUJOCO_GL"] = "osmesa"
+  os.environ["PYOPENGL_PLATFORM"] = "osmesa"
+  os.environ.pop("DISPLAY", None)
+  
++ import d3rlpy
++ from d3rlpy.datasets import get_atari
++ from d3rlpy.metrics.scorer import evaluate_on_environment
++ from d3rlpy.metrics.scorer import td_error_scorer
++ from d3rlpy.metrics.scorer import discounted_sum_of_advantage_scorer
++ from d3rlpy.metrics.scorer import average_value_estimation_scorer
++ from sklearn.model_selection import train_test_split
++ import d4rl.gym_mujoco
++ 
++ import argparse
++ import io
++ import sys
++ import copy
++ import torch
++ import numpy as np
++ from sklearn.model_selection import train_test_split
+  
+  class TrainingDivergedException(Exception):
+      def __init__(self, message, is_nan=True):
+          super().__init__(message)
+          self.is_nan = is_nan
+  
+  def apply_gradient_clipping(algorithm, max_norm=1.0):
+      if not hasattr(algorithm, "impl") or algorithm.impl is None:
+          return
+!     
+      from torch.optim import Optimizer
+      impl = algorithm.impl
+      for attr_name in dir(impl):
+***************
+*** 38,44 ****
+                  print(f"[Safeguard] Applying gradient clipping (max_norm={max_norm}) to optimizer: impl.{attr_name}")
+                  if not hasattr(attr, "_is_gradient_clipped"):
+                      original_step = attr.step
+! 
+                      def make_new_step(opt, orig_step):
+                          def new_step(*args, **kwargs):
+                              params = []
+--- 39,45 ----
+                  print(f"[Safeguard] Applying gradient clipping (max_norm={max_norm}) to optimizer: impl.{attr_name}")
+                  if not hasattr(attr, "_is_gradient_clipped"):
+                      original_step = attr.step
+!                     
+                      def make_new_step(opt, orig_step):
+                          def new_step(*args, **kwargs):
+                              params = []
+***************
+*** 50,73 ****
+                                  torch.nn.utils.clip_grad_norm_(params, max_norm)
+                              return orig_step(*args, **kwargs)
+                          return new_step
+! 
+                      attr.step = make_new_step(attr, original_step)
+                      attr._is_gradient_clipped = True
+          except Exception:
+              pass
+  
+- 
+  def setup_safeguards(algorithm, grad_clip, divergence_threshold):
+      # Intercept create_impl to apply gradient clipping
+      original_create_impl = algorithm.create_impl
+! 
+      def custom_create_impl(observation_shape, action_size):
+          original_create_impl(observation_shape, action_size)
+          if grad_clip is not None:
+              apply_gradient_clipping(algorithm, grad_clip)
+! 
+      algorithm.create_impl = custom_create_impl
+! 
+      # If the model was loaded and impl is already built, apply gradient clipping immediately
+      if hasattr(algorithm, "impl") and algorithm.impl is not None:
+          if grad_clip is not None:
+--- 51,73 ----
+                                  torch.nn.utils.clip_grad_norm_(params, max_norm)
+                              return orig_step(*args, **kwargs)
+                          return new_step
+!                     
+                      attr.step = make_new_step(attr, original_step)
+                      attr._is_gradient_clipped = True
+          except Exception:
+              pass
+  
+  def setup_safeguards(algorithm, grad_clip, divergence_threshold):
+      # Intercept create_impl to apply gradient clipping
+      original_create_impl = algorithm.create_impl
+!     
+      def custom_create_impl(observation_shape, action_size):
+          original_create_impl(observation_shape, action_size)
+          if grad_clip is not None:
+              apply_gradient_clipping(algorithm, grad_clip)
+!             
+      algorithm.create_impl = custom_create_impl
+!     
+      # If the model was loaded and impl is already built, apply gradient clipping immediately
+      if hasattr(algorithm, "impl") and algorithm.impl is not None:
+          if grad_clip is not None:
+***************
+*** 78,87 ****
+      algorithm._last_valid_checkpoint_buffer = None
+      algorithm._baseline_loss = None
+      algorithm._primary_loss_key = None
+! 
+      # Intercept update to do checks
+      original_update = algorithm.update
+! 
+      def custom_update(batch):
+          # 1. Before update: save checkpoint if it is step 0 or a multiple of 10000
+          if algorithm._safeguard_steps % 10000 == 0:
+--- 78,87 ----
+      algorithm._last_valid_checkpoint_buffer = None
+      algorithm._baseline_loss = None
+      algorithm._primary_loss_key = None
+!     
+      # Intercept update to do checks
+      original_update = algorithm.update
+!     
+      def custom_update(batch):
+          # 1. Before update: save checkpoint if it is step 0 or a multiple of 10000
+          if algorithm._safeguard_steps % 10000 == 0:
+***************
+*** 94,114 ****
+                      # print(f"[Safeguard] Saved in-memory checkpoint at step {algorithm._safeguard_steps}")
+                  except Exception as e:
+                      print(f"[Safeguard Warning] Failed to save in-memory checkpoint: {e}")
+! 
+          # 2. Run the original update step
+          try:
+              loss = original_update(batch)
+          except Exception as e:
+              print(f"[Safeguard] Exception during update step: {e}")
+              loss = None
+! 
+          algorithm._safeguard_steps += 1
+! 
+          # 3. Check for divergence/NaN
+          diverged = False
+          is_nan = False
+          reason = ""
+! 
+          if loss is None:
+              diverged = True
+              reason = "Exception during update step"
+--- 94,114 ----
+                      # print(f"[Safeguard] Saved in-memory checkpoint at step {algorithm._safeguard_steps}")
+                  except Exception as e:
+                      print(f"[Safeguard Warning] Failed to save in-memory checkpoint: {e}")
+!                     
+          # 2. Run the original update step
+          try:
+              loss = original_update(batch)
+          except Exception as e:
+              print(f"[Safeguard] Exception during update step: {e}")
+              loss = None
+!             
+          algorithm._safeguard_steps += 1
+!         
+          # 3. Check for divergence/NaN
+          diverged = False
+          is_nan = False
+          reason = ""
+!         
+          if loss is None:
+              diverged = True
+              reason = "Exception during update step"
+***************
+*** 120,126 ****
+                      is_nan = True
+                      reason = f"NaN/Inf detected in loss metric '{k}' (value: {v})"
+                      break
+! 
+              # Check for divergence threshold violation
+              if not diverged:
+                  if algorithm._primary_loss_key is None:
+--- 120,126 ----
+                      is_nan = True
+                      reason = f"NaN/Inf detected in loss metric '{k}' (value: {v})"
+                      break
+!             
+              # Check for divergence threshold violation
+              if not diverged:
+                  if algorithm._primary_loss_key is None:
+***************
+*** 130,136 ****
+                          algorithm._primary_loss_key = "loss"
+                      elif "imitator_loss" in loss:
+                          algorithm._primary_loss_key = "imitator_loss"
+! 
+                  if algorithm._primary_loss_key in loss:
+                      val = loss[algorithm._primary_loss_key]
+                      val_abs = abs(val)
+--- 130,136 ----
+                          algorithm._primary_loss_key = "loss"
+                      elif "imitator_loss" in loss:
+                          algorithm._primary_loss_key = "imitator_loss"
+!                 
+                  if algorithm._primary_loss_key in loss:
+                      val = loss[algorithm._primary_loss_key]
+                      val_abs = abs(val)
+***************
+*** 138,159 ****
+                          algorithm._baseline_loss = val_abs
+                          print(f"[Safeguard] Baseline loss recorded for '{algorithm._primary_loss_key}': {algorithm._baseline_loss} at step {algorithm._safeguard_steps}")
+                      else:
+!                         # Allow warmup during initial steps without premature abort
+!                         if algorithm._safeguard_steps > 20000:
+!                             baseline_denom = max(algorithm._baseline_loss, 100.0)
+!                             if val_abs > divergence_threshold * baseline_denom:
+!                                 diverged = True
+!                                 reason = f"Loss '{algorithm._primary_loss_key}' exceeded divergence threshold: current {val} (abs: {val_abs}) vs baseline {algorithm._baseline_loss} (limit: {divergence_threshold * baseline_denom})"
+! 
+          # 4. Handle recovery if diverged
+          if diverged:
+              print("\n" + "="*80)
+              print(f"[Safeguard] DIVERGENCE DETECTED at step {algorithm._safeguard_steps}: {reason}")
+! 
+              if not hasattr(algorithm, "_recovery_count"):
+                  algorithm._recovery_count = 0
+              algorithm._recovery_count += 1
+! 
+              if algorithm._recovery_count <= 5 and algorithm._last_valid_checkpoint_buffer is not None:
+                  print(f"[Safeguard] Attempting recovery #{algorithm._recovery_count}...")
+                  try:
+--- 138,157 ----
+                          algorithm._baseline_loss = val_abs
+                          print(f"[Safeguard] Baseline loss recorded for '{algorithm._primary_loss_key}': {algorithm._baseline_loss} at step {algorithm._safeguard_steps}")
+                      else:
+!                         baseline_denom = max(algorithm._baseline_loss, 100.0)
+!                         if val_abs > divergence_threshold * baseline_denom:
+!                             diverged = True
+!                             reason = f"Loss '{algorithm._primary_loss_key}' exceeded divergence threshold: current {val} (abs: {val_abs}) vs baseline {algorithm._baseline_loss} (limit: {divergence_threshold * baseline_denom})"
+!         
+          # 4. Handle recovery if diverged
+          if diverged:
+              print("\n" + "="*80)
+              print(f"[Safeguard] DIVERGENCE DETECTED at step {algorithm._safeguard_steps}: {reason}")
+!             
+              if not hasattr(algorithm, "_recovery_count"):
+                  algorithm._recovery_count = 0
+              algorithm._recovery_count += 1
+!             
+              if algorithm._recovery_count <= 5 and algorithm._last_valid_checkpoint_buffer is not None:
+                  print(f"[Safeguard] Attempting recovery #{algorithm._recovery_count}...")
+                  try:
+***************
+*** 163,169 ****
+                      chkpt = torch.load(algorithm._last_valid_checkpoint_buffer)
+                      set_state_dict(algorithm.impl, chkpt)
+                      print("[Safeguard] Restored weights from last valid in-memory checkpoint.")
+! 
+                      # Reduce learning rates and clear optimizer state
+                      from torch.optim import Optimizer
+                      for attr_name in dir(algorithm.impl):
+--- 161,167 ----
+                      chkpt = torch.load(algorithm._last_valid_checkpoint_buffer)
+                      set_state_dict(algorithm.impl, chkpt)
+                      print("[Safeguard] Restored weights from last valid in-memory checkpoint.")
+!                     
+                      # Reduce learning rates and clear optimizer state
+                      from torch.optim import Optimizer
+                      for attr_name in dir(algorithm.impl):
+***************
+*** 179,190 ****
+                                      print(f"  - Cleared state and reduced LR of impl.{attr_name} from {old_lr} to {param_group['lr']}")
+                          except Exception:
+                              pass
+! 
+                      # Reset baseline loss tracker
+                      algorithm._baseline_loss = None
+                      print("[Safeguard] Recovery successful. Resuming training...")
+                      print("="*80 + "\n")
+! 
+                      # Return dummy loss dict to prevent training loop crashes
+                      if loss is not None:
+                          return {k: 0.0 for k in loss.keys()}
+--- 177,188 ----
+                                      print(f"  - Cleared state and reduced LR of impl.{attr_name} from {old_lr} to {param_group['lr']}")
+                          except Exception:
+                              pass
+!                             
+                      # Reset baseline loss tracker
+                      algorithm._baseline_loss = None
+                      print("[Safeguard] Recovery successful. Resuming training...")
+                      print("="*80 + "\n")
+!                     
+                      # Return dummy loss dict to prevent training loop crashes
+                      if loss is not None:
+                          return {k: 0.0 for k in loss.keys()}
+***************
+*** 193,215 ****
+                          return {dummy_key: 0.0}
+                  except Exception as recovery_err:
+                      print(f"[Safeguard Error] Recovery failed: {recovery_err}")
+! 
+              # If recovery not possible, abort
+              print("[Safeguard] Recovery not possible or limit exceeded. Aborting training.")
+              print("="*80 + "\n")
+              raise TrainingDivergedException(reason, is_nan)
+! 
+          return loss
+  
+      algorithm.update = custom_update
+  
+- 
+  def main(args):
+      dataset, env = d3rlpy.datasets.get_d4rl(args.dataset)
+      d3rlpy.seed(args.seed)
+! 
+      use_gpu = args.gpu if (args.gpu is not None and args.gpu >= 0) else False
+! 
+      if args.dataset == "pen-human-v1":
+          if args.algo == "CQL":
+              algorithm = d3rlpy.algos.CQL(use_gpu=use_gpu)
+--- 191,212 ----
+                          return {dummy_key: 0.0}
+                  except Exception as recovery_err:
+                      print(f"[Safeguard Error] Recovery failed: {recovery_err}")
+!             
+              # If recovery not possible, abort
+              print("[Safeguard] Recovery not possible or limit exceeded. Aborting training.")
+              print("="*80 + "\n")
+              raise TrainingDivergedException(reason, is_nan)
+!             
+          return loss
+  
+      algorithm.update = custom_update
+  
+  def main(args):
+      dataset, env = d3rlpy.datasets.get_d4rl(args.dataset)
+      d3rlpy.seed(args.seed)
+!     
+      use_gpu = args.gpu if (args.gpu is not None and args.gpu >= 0) else False
+!     
+      if args.dataset == "pen-human-v1":
+          if args.algo == "CQL":
+              algorithm = d3rlpy.algos.CQL(use_gpu=use_gpu)
+***************
+*** 223,240 ****
+              algorithm = d3rlpy.algos.IQL(use_gpu=use_gpu)
+          elif args.algo == "PLASP":
+              algorithm = d3rlpy.algos.PLASWithPerturbation(use_gpu=use_gpu)
+!         else:
+              print("No availble algorithms!")
+      else:
+          if args.algo == "CQL":
+              critic_lr = args.critic_lr if args.critic_lr is not None else 1e-4
+              actor_lr = args.actor_lr if args.actor_lr is not None else 1e-4
+!             alpha_lr = args.alpha_lr if args.alpha_lr is not None else 1e-4  # dynamic Lagrangian alpha tuning
+              temp_lr = args.temp_lr if args.temp_lr is not None else 1e-4      # dynamic temperature tuning
+              initial_alpha = args.initial_alpha if args.initial_alpha is not None else 1.0
+!             conservative_weight = args.conservative_weight if args.conservative_weight is not None else 5.0
+!             alpha_threshold = args.alpha_threshold if args.alpha_threshold is not None else 5.0
+! 
+              print("=" * 60)
+              print(f"Instantiating CQL with parameters:")
+              print(f"  critic_learning_rate: {critic_lr}")
+--- 220,236 ----
+              algorithm = d3rlpy.algos.IQL(use_gpu=use_gpu)
+          elif args.algo == "PLASP":
+              algorithm = d3rlpy.algos.PLASWithPerturbation(use_gpu=use_gpu)
+!         else: 
+              print("No availble algorithms!")
+      else:
+          if args.algo == "CQL":
+              critic_lr = args.critic_lr if args.critic_lr is not None else 1e-4
+              actor_lr = args.actor_lr if args.actor_lr is not None else 1e-4
+!             alpha_lr = args.alpha_lr if args.alpha_lr is not None else 1e-3  # dynamic Lagrangian alpha tuning
+              temp_lr = args.temp_lr if args.temp_lr is not None else 1e-4      # dynamic temperature tuning
+              initial_alpha = args.initial_alpha if args.initial_alpha is not None else 1.0
+!             conservative_weight = args.conservative_weight if args.conservative_weight is not None else 10.0
+!             
+              print("=" * 60)
+              print(f"Instantiating CQL with parameters:")
+              print(f"  critic_learning_rate: {critic_lr}")
+***************
+*** 243,251 ****
+              print(f"  temp_learning_rate:   {temp_lr}")
+              print(f"  initial_alpha:        {initial_alpha}")
+              print(f"  conservative_weight:  {conservative_weight}")
+-             print(f"  alpha_threshold:      {alpha_threshold}")
+              print("=" * 60)
+! 
+              algorithm = d3rlpy.algos.CQL(
+                  use_gpu=use_gpu,
+                  critic_learning_rate=critic_lr,
+--- 239,246 ----
+              print(f"  temp_learning_rate:   {temp_lr}")
+              print(f"  initial_alpha:        {initial_alpha}")
+              print(f"  conservative_weight:  {conservative_weight}")
+              print("=" * 60)
+!             
+              algorithm = d3rlpy.algos.CQL(
+                  use_gpu=use_gpu,
+                  critic_learning_rate=critic_lr,
+***************
+*** 254,264 ****
+                  temp_learning_rate=temp_lr,
+                  initial_alpha=initial_alpha,
+                  initial_temperature=1.0,
+!                 conservative_weight=conservative_weight,
+!                 alpha_threshold=alpha_threshold,
+!                 scaler="standard"
+              )
+          elif args.algo == "BCQ":
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=use_gpu)
+              else:
+--- 249,258 ----
+                  temp_learning_rate=temp_lr,
+                  initial_alpha=initial_alpha,
+                  initial_temperature=1.0,
+!                 conservative_weight=conservative_weight
+              )
+          elif args.algo == "BCQ":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.BCQ.from_json(args.model, use_gpu=use_gpu)
+              else:
+***************
+*** 284,290 ****
+              alpha_lr = args.alpha_lr if args.alpha_lr is not None else 0.0     # fix alpha/disable runaway
+              temp_lr = args.temp_lr if args.temp_lr is not None else 1e-4
+              initial_temp = args.initial_temp if args.initial_temp is not None else 1.0
+! 
+              print("=" * 60)
+              print(f"Instantiating BEAR with parameters:")
+              print(f"  critic_learning_rate: {critic_lr}")
+--- 278,284 ----
+              alpha_lr = args.alpha_lr if args.alpha_lr is not None else 0.0     # fix alpha/disable runaway
+              temp_lr = args.temp_lr if args.temp_lr is not None else 1e-4
+              initial_temp = args.initial_temp if args.initial_temp is not None else 1.0
+!             
+              print("=" * 60)
+              print(f"Instantiating BEAR with parameters:")
+              print(f"  critic_learning_rate: {critic_lr}")
+***************
+*** 297,303 ****
+              print(f"  initial_temperature:  {initial_temp}")
+              print(f"  scaler:               standard")
+              print("=" * 60)
+! 
+              algorithm = d3rlpy.algos.BEAR(
+                  use_gpu=use_gpu,
+                  critic_learning_rate=critic_lr,
+--- 291,297 ----
+              print(f"  initial_temperature:  {initial_temp}")
+              print(f"  scaler:               standard")
+              print("=" * 60)
+!             
+              algorithm = d3rlpy.algos.BEAR(
+                  use_gpu=use_gpu,
+                  critic_learning_rate=critic_lr,
+***************
+*** 311,316 ****
+--- 305,311 ----
+                  scaler="standard"
+              )
+          elif args.algo == "TD3PLUSBC":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.TD3PlusBC.from_json(args.model, use_gpu=use_gpu)
+              else:
+***************
+*** 324,330 ****
+                  print(f"  critic_learning_rate:    {critic_lr}")
+                  print(f"  alpha (BC weight):       {alpha}")
+                  print(f"  target_smoothing_sigma:  {target_smoothing_sigma}")
+-                 print(f"  scaler:                  standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.TD3PlusBC(
+                      use_gpu=use_gpu,
+--- 319,324 ----
+***************
+*** 335,340 ****
+--- 329,335 ----
+                      scaler="standard"
+                  )
+          elif args.algo == "AWAC":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.AWAC.from_json(args.model, use_gpu=use_gpu)
+              else:
+***************
+*** 344,350 ****
+                  print(f"Instantiating AWAC from scratch with parameters:")
+                  print(f"  actor_learning_rate:  {actor_lr}")
+                  print(f"  critic_learning_rate: {critic_lr}")
+-                 print(f"  scaler:               standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.AWAC(
+                      use_gpu=use_gpu,
+--- 339,344 ----
+***************
+*** 353,366 ****
+                      scaler="standard"
+                  )
+          elif args.algo == "BC":
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.BC.from_json(args.model, use_gpu=use_gpu)
+              else:
+                  lr = args.actor_lr if args.actor_lr is not None else 1e-4
+                  print("=" * 60)
+                  print(f"Instantiating BC from scratch with parameters:")
+!                 print(f"  learning_rate:        {lr}")
+!                 print(f"  scaler:               standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.BC(
+                      use_gpu=use_gpu,
+--- 347,360 ----
+                      scaler="standard"
+                  )
+          elif args.algo == "BC":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.BC.from_json(args.model, use_gpu=use_gpu)
+              else:
+                  lr = args.actor_lr if args.actor_lr is not None else 1e-4
+                  print("=" * 60)
+                  print(f"Instantiating BC from scratch with parameters:")
+!                 print(f"  learning_rate:  {lr}")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.BC(
+                      use_gpu=use_gpu,
+***************
+*** 368,373 ****
+--- 362,368 ----
+                      scaler="standard"
+                  )
+          elif args.algo == "SAC":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.SAC.from_json(args.model, use_gpu=use_gpu)
+              else:
+***************
+*** 377,383 ****
+                  print(f"Instantiating SAC from scratch with parameters:")
+                  print(f"  actor_learning_rate:  {actor_lr}")
+                  print(f"  critic_learning_rate: {critic_lr}")
+-                 print(f"  scaler:               standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.SAC(
+                      use_gpu=use_gpu,
+--- 372,377 ----
+***************
+*** 386,415 ****
+                      scaler="standard"
+                  )
+          elif args.algo == "IQL":
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=use_gpu)
+              else:
+                  actor_lr = args.actor_lr if args.actor_lr is not None else 1e-4
+                  critic_lr = args.critic_lr if args.critic_lr is not None else 1e-4
+-                 expectile = args.expectile if args.expectile is not None else 0.7
+-                 weight_temp = args.weight_temp if args.weight_temp is not None else 3.0
+                  print("=" * 60)
+                  print(f"Instantiating IQL from scratch with parameters:")
+                  print(f"  actor_learning_rate:  {actor_lr}")
+                  print(f"  critic_learning_rate: {critic_lr}")
+-                 print(f"  expectile:            {expectile}")
+-                 print(f"  weight_temp:          {weight_temp}")
+                  print(f"  scaler:               standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.IQL(
+                      use_gpu=use_gpu,
+                      actor_learning_rate=actor_lr,
+                      critic_learning_rate=critic_lr,
+-                     expectile=expectile,
+-                     weight_temp=weight_temp,
+                      scaler="standard"
+                  )
+          elif args.algo == "PLASP":
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=use_gpu)
+              else:
+--- 380,405 ----
+                      scaler="standard"
+                  )
+          elif args.algo == "IQL":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.IQL.from_json(args.model, use_gpu=use_gpu)
+              else:
+                  actor_lr = args.actor_lr if args.actor_lr is not None else 1e-4
+                  critic_lr = args.critic_lr if args.critic_lr is not None else 1e-4
+                  print("=" * 60)
+                  print(f"Instantiating IQL from scratch with parameters:")
+                  print(f"  actor_learning_rate:  {actor_lr}")
+                  print(f"  critic_learning_rate: {critic_lr}")
+                  print(f"  scaler:               standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.IQL(
+                      use_gpu=use_gpu,
+                      actor_learning_rate=actor_lr,
+                      critic_learning_rate=critic_lr,
+                      scaler="standard"
+                  )
+          elif args.algo == "PLASP":
++             import os
+              if args.model and os.path.exists(args.model):
+                  algorithm = d3rlpy.algos.PLASWithPerturbation.from_json(args.model, use_gpu=use_gpu)
+              else:
+***************
+*** 419,425 ****
+                  print(f"Instantiating PLASWithPerturbation from scratch with parameters:")
+                  print(f"  actor_learning_rate:  {actor_lr}")
+                  print(f"  critic_learning_rate: {critic_lr}")
+-                 print(f"  scaler:               standard")
+                  print("=" * 60)
+                  algorithm = d3rlpy.algos.PLASWithPerturbation(
+                      use_gpu=use_gpu,
+--- 409,414 ----
+***************
+*** 427,477 ****
+                      critic_learning_rate=critic_lr,
+                      scaler="standard"
+                  )
+!         else:
+              print("No availble algorithms!")
+! 
+      setup_safeguards(algorithm, args.grad_clip, args.divergence_threshold)
+! 
+      train_episodes, test_episodes = train_test_split(dataset, test_size=0.1, shuffle=False)
+! 
+!     # Best checkpoint tracking wrapper
+!     best_return = float("-inf")
+!     raw_env_scorer = evaluate_on_environment(env)
+! 
+!     def tracked_env_scorer(algo, eval_episodes):
+!         nonlocal best_return
+!         score = raw_env_scorer(algo, eval_episodes)
+!         if score > best_return:
+!             best_return = score
+!             out_dir = os.path.join("Fully_trained", str(args.dataset))
+!             os.makedirs(out_dir, exist_ok=True)
+!             best_path = os.path.join(out_dir, f"{args.algo}_best_model.pt")
+!             try:
+!                 algo.save_model(best_path)
+!                 print(f"[Tracker] New peak return achieved: {score:.2f}! Saved best model to: {best_path}")
+!             except Exception as e:
+!                 print(f"[Tracker Warning] Failed to save best model: {e}")
+!         return score
+! 
+      if args.algo == "BC":
+          fit_scorers = {
+!             'environment': tracked_env_scorer,
+          }
+      else:
+          fit_scorers = {
+!             'environment': tracked_env_scorer,
+              'td_error': td_error_scorer,
+              'discounted_advantage': discounted_sum_of_advantage_scorer,
+              'value_scale': average_value_estimation_scorer
+          }
+! 
+      try:
+          algorithm.fit(train_episodes,
+!                       eval_episodes=test_episodes,
+!                       n_steps=args.n_steps,
+!                       n_steps_per_epoch=args.n_steps_per_epoch,
+!                       logdir="Fully_trained/"+str(args.dataset),
+!                       scorers=fit_scorers)
+      except TrainingDivergedException as e:
+          print("\n" + "="*80)
+          if e.is_nan:
+--- 416,447 ----
+                      critic_learning_rate=critic_lr,
+                      scaler="standard"
+                  )
+!         else: 
+              print("No availble algorithms!")
+!             
+      setup_safeguards(algorithm, args.grad_clip, args.divergence_threshold)
+!     
+      train_episodes, test_episodes = train_test_split(dataset, test_size=0.1, shuffle=False)
+!     
+      if args.algo == "BC":
+          fit_scorers = {
+!             'environment': evaluate_on_environment(env),
+          }
+      else:
+          fit_scorers = {
+!             'environment': evaluate_on_environment(env),
+              'td_error': td_error_scorer,
+              'discounted_advantage': discounted_sum_of_advantage_scorer,
+              'value_scale': average_value_estimation_scorer
+          }
+!         
+      try:
+          algorithm.fit(train_episodes,
+!                 eval_episodes=test_episodes,
+!                 n_steps=args.n_steps,
+!                 n_steps_per_epoch=args.n_steps_per_epoch,
+!                 logdir="Fully_trained/"+str(args.dataset),
+!                 scorers=fit_scorers)
+      except TrainingDivergedException as e:
+          print("\n" + "="*80)
+          if e.is_nan:
+***************
+*** 483,499 ****
+              print(f"Details: {e}")
+              exit_code = 11
+          print("="*80 + "\n")
+! 
+          # Restore the last valid in-memory checkpoint if available
+          if algorithm._last_valid_checkpoint_buffer is not None:
+              try:
+                  from d3rlpy.torch_utility import set_state_dict
+! 
+                  print("[Safeguard] Restoring last valid in-memory checkpoint...")
+                  algorithm._last_valid_checkpoint_buffer.seek(0)
+                  chkpt = torch.load(algorithm._last_valid_checkpoint_buffer)
+                  set_state_dict(algorithm.impl, chkpt)
+! 
+                  # Determine output path for the saved model
+                  out_dir = "Fully_trained/" + str(args.dataset)
+                  os.makedirs(out_dir, exist_ok=True)
+--- 453,470 ----
+              print(f"Details: {e}")
+              exit_code = 11
+          print("="*80 + "\n")
+!         
+          # Restore the last valid in-memory checkpoint if available
+          if algorithm._last_valid_checkpoint_buffer is not None:
+              try:
++                 import os
+                  from d3rlpy.torch_utility import set_state_dict
+!                 
+                  print("[Safeguard] Restoring last valid in-memory checkpoint...")
+                  algorithm._last_valid_checkpoint_buffer.seek(0)
+                  chkpt = torch.load(algorithm._last_valid_checkpoint_buffer)
+                  set_state_dict(algorithm.impl, chkpt)
+!                 
+                  # Determine output path for the saved model
+                  out_dir = "Fully_trained/" + str(args.dataset)
+                  os.makedirs(out_dir, exist_ok=True)
+***************
+*** 504,513 ****
+                  print(f"[Safeguard Error] Failed to restore/save checkpoint: {restore_err}")
+          else:
+              print("[Safeguard] No valid in-memory checkpoint was cached yet.")
+! 
+          sys.exit(exit_code)
+  
+- 
+  if __name__ == '__main__':
+      parser = argparse.ArgumentParser()
+      parser.add_argument('--dataset', type=str, default='walker2d-medium-expert-v0')
+--- 475,483 ----
+                  print(f"[Safeguard Error] Failed to restore/save checkpoint: {restore_err}")
+          else:
+              print("[Safeguard] No valid in-memory checkpoint was cached yet.")
+!             
+          sys.exit(exit_code)
+  
+  if __name__ == '__main__':
+      parser = argparse.ArgumentParser()
+      parser.add_argument('--dataset', type=str, default='walker2d-medium-expert-v0')
+***************
+*** 515,521 ****
+      parser.add_argument('--algo', type=str, default='CQL')
+      parser.add_argument('--seed', type=int, default=0)
+      parser.add_argument('--gpu', type=int, default=0)
+! 
+      # Hyperparameter overrides
+      parser.add_argument('--critic_lr', type=float, default=None)
+      parser.add_argument('--actor_lr', type=float, default=None)
+--- 485,491 ----
+      parser.add_argument('--algo', type=str, default='CQL')
+      parser.add_argument('--seed', type=int, default=0)
+      parser.add_argument('--gpu', type=int, default=0)
+!     
+      # Hyperparameter overrides
+      parser.add_argument('--critic_lr', type=float, default=None)
+      parser.add_argument('--actor_lr', type=float, default=None)
+***************
+*** 523,544 ****
+      parser.add_argument('--lam', type=float, default=None)
+      parser.add_argument('--initial_alpha', type=float, default=None)
+      parser.add_argument('--conservative_weight', type=float, default=None)
+-     parser.add_argument('--alpha_threshold', type=float, default=None)
+-     parser.add_argument('--expectile', type=float, default=None)
+-     parser.add_argument('--weight_temp', type=float, default=None)
+      parser.add_argument('--temp_lr', type=float, default=None)
+      parser.add_argument('--initial_temp', type=float, default=None)  # Initial policy entropy temperature
+      parser.add_argument('--alpha_lr', type=float, default=None)
+      parser.add_argument('--alpha', type=float, default=None)  # TD3+BC weight parameter
+      parser.add_argument('--target_smoothing_sigma', type=float, default=None)  # TD3+BC target smoothing noise std
+! 
+      # Stability safeguard options
+      parser.add_argument('--grad_clip', type=float, default=1.0)
+!     parser.add_argument('--divergence_threshold', type=float, default=100000.0)
+! 
+      # Training step options
+      parser.add_argument('--n_steps', type=int, default=500000)
+      parser.add_argument('--n_steps_per_epoch', type=int, default=50000)
+! 
+      args = parser.parse_args()
+      main(args)
+--- 493,511 ----
+      parser.add_argument('--lam', type=float, default=None)
+      parser.add_argument('--initial_alpha', type=float, default=None)
+      parser.add_argument('--conservative_weight', type=float, default=None)
+      parser.add_argument('--temp_lr', type=float, default=None)
+      parser.add_argument('--initial_temp', type=float, default=None)  # Initial policy entropy temperature
+      parser.add_argument('--alpha_lr', type=float, default=None)
+      parser.add_argument('--alpha', type=float, default=None)  # TD3+BC weight parameter
+      parser.add_argument('--target_smoothing_sigma', type=float, default=None)  # TD3+BC target smoothing noise std
+!     
+      # Stability safeguard options
+      parser.add_argument('--grad_clip', type=float, default=1.0)
+!     parser.add_argument('--divergence_threshold', type=float, default=10000.0)
+!     
+      # Training step options
+      parser.add_argument('--n_steps', type=int, default=500000)
+      parser.add_argument('--n_steps_per_epoch', type=int, default=50000)
+!     
+      args = parser.parse_args()
+      main(args)
