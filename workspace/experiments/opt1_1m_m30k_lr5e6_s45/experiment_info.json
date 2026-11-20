@@ -1,0 +1,9 @@
+{
+  "folder": "opt1_1m_m30k_lr5e6_s45",
+  "job_name": "o1_30k_5e6_s45",
+  "desc": "1M Option 1 fine-tuning: Load model_30000.pt (Return 2.40), Actor LR 5e-6, Seed 45, Eval per 10k steps",
+  "time": "07:30:00",
+  "flag": "--seed 45 --n_steps 1000000 --n_steps_per_epoch 10000 --warmup_steps 10000 --q_ramp_steps 500000 --actor_lr 5e-6 --alpha_min 0.1 --alpha_max 5.0 --use_continuous_bc --lambda_bc_start 1.0 --lambda_bc_floor 1.0 --lambda_bc_decay_steps 1000000 --max_q_target 400.0 --enable_tf32 --batch_size 512 --use_huber_loss --load_model /fred/oz479/COS40005-P37-Capstone-Project/tschnabe/Fully_trained/kitchen-complete-v0/BEAR_20260827180045/model_30000.pt",
+  "seed": 45,
+  "actor_lr": "5e-6"
+}

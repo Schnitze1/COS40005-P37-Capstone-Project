@@ -1,0 +1,96 @@
+Running 5-Job Pilot Experiment: PILOT-01: Standalone Pure BC Upper Bound Baseline (Actor LR 1e-4, Seed 42, 200k Steps)
+Job ID: 16032547
+Host: gina15
+Start Time: Sun Aug 30 23:02:42 AEST 2026
+[Perf] Enabled cuDNN benchmark + TF32 matmul acceleration
+Reading configurations for Franka
+Initializing Franka sim
+============================================================
+Instantiating BEAR with parameters:
+  critic_learning_rate: 0.0001
+  actor_learning_rate:  0.0001
+  tau:                  0.001
+  lam (min Q weight):   0.5
+  initial_alpha (MMD):  1.0
+  alpha_learning_rate:  0.0001
+  alpha_threshold:      0.15
+  warmup_steps:         200000
+  q_ramp_steps:         0
+  ramp_type:            linear
+  bc_warmup_weight:     1.0
+  alpha_min:            0.1
+  alpha_max:            5.0
+  use_continuous_bc:    True
+  lambda_bc_start:      1.0
+  lambda_bc_floor:      1.0
+  lambda_bc_decay_steps:200000
+  use_huber_loss:       False
+  huber_delta:          1.0
+  actor_lr_post_warmup: None
+  n_action_samples:     10
+  n_mmd_action_samples: 10
+  n_critics:            4
+  gamma:                0.99
+  mmd_kernel:           kl
+  mmd_sigma:            20.0
+  max_q_target:         None
+  reward_scaler:        None
+============================================================
+2026-08-30 23:02:48 [debug    ] RandomIterator is selected.
+2026-08-30 23:02:48 [info     ] Directory is created at Fully_trained/kitchen-complete-v0/BEAR_20260830230248
+2026-08-30 23:02:48 [debug    ] Fitting scaler...              scaler=standard
+2026-08-30 23:02:48 [debug    ] Building models...
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._actor_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._alpha_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._critic_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._imitator_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._temp_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl.policy_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl.q_function_optim
+2026-08-30 23:02:50 [debug    ] Models have been built.
+2026-08-30 23:02:50 [info     ] Parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260830230248/params.json params={'action_scaler': None, 'actor_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'actor_l2_weight': 0.1, 'actor_learning_rate': 0.0001, 'actor_lr_post_warmup': None, 'actor_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'alpha_learning_rate': 0.0001, 'alpha_max': 5.0, 'alpha_min': 0.1, 'alpha_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'alpha_threshold': 0.15, 'baseline_loss': None, 'batch_size': 512, 'bc_warmup_weight': 1.0, 'critic_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'critic_learning_rate': 0.0001, 'critic_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'detach_mmd_actor': False, 'gamma': 0.99, 'generated_maxlen': 100000, 'huber_delta': 1.0, 'imitator_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'imitator_learning_rate': 0.0003, 'imitator_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'initial_alpha': 1.0, 'initial_temperature': 1.0, 'lam': 0.5, 'lambda_bc_decay_steps': 200000, 'lambda_bc_floor': 1.0, 'lambda_bc_start': 1.0, 'last_valid_checkpoint_buffer': None, 'max_q_target': None, 'mmd_actor_weight': 1.0, 'mmd_kernel': 'kl', 'mmd_sigma': 20.0, 'n_action_samples': 10, 'n_critics': 4, 'n_frames': 1, 'n_mmd_action_samples': 10, 'n_steps': 1, 'n_target_samples': 10, 'primary_loss_key': None, 'q_func_factory': {'type': 'mean', 'params': {'bootstrap': False, 'share_encoder': False}}, 'q_ramp_steps': 0, 'ramp_type': 'linear', 'real_ratio': 1.0, 'reward_scaler': None, 'safeguard_steps': 0, 'scaler': {'type': 'standard', 'params': {'mean': array([[-1.05071568e+00, -1.69175159e+00,  1.62216928e+00,
+        -1.98836508e+00, -1.59308663e-01,  1.29814067e+00,
+         1.86633267e+00,  3.53195300e-02,  3.07675447e-02,
+         2.87966661e-05,  2.38691619e-06,  2.38102896e-05,
+         1.16442787e-06,  2.45649477e-05, -1.79240899e-07,
+         2.47075287e-05, -3.90584218e-07, -1.82792269e-01,
+        -1.30556557e-02,  2.15736963e-02, -2.60315547e-05,
+        -2.33145795e-04, -6.28441429e-01, -2.33538360e-01,
+         5.71854468e-01,  1.62592611e+00,  9.97776594e-01,
+         9.46435524e-03, -1.33348284e-03, -2.85968100e-03,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00, -6.89999998e-01,
+        -5.00000007e-02,  3.70000005e-01,  0.00000000e+00,
+         0.00000000e+00, -7.50000000e-01, -2.30000004e-01,
+         7.50000000e-01,  1.62000000e+00,  9.90000010e-01,
+         0.00000000e+00,  0.00000000e+00, -5.99999987e-02]]), 'std': array([[5.82695915e-01, 1.28922264e-01, 3.81948336e-01, 3.21245309e-01,
+        4.14860032e-01, 3.24552392e-01, 4.35709417e-01, 8.77797540e-03,
+        1.26954857e-02, 2.89488819e-04, 2.89440786e-04, 2.90993351e-05,
+        2.89205057e-05, 2.90036657e-05, 2.90081232e-05, 2.88831560e-05,
+        2.90270444e-05, 3.01855068e-01, 2.15664122e-02, 7.91023878e-02,
+        5.80195109e-03, 5.83092365e-03, 3.21148694e-01, 3.24292418e-02,
+        1.88180780e-01, 2.17495259e-02, 7.24231209e-03, 2.99360746e-02,
+        1.43939401e-02, 5.72166438e-02, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00]]), 'eps': 0.001}}, 'tau': 0.001, 'temp_learning_rate': 0.0001, 'temp_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'use_actor_l2_reg': False, 'use_continuous_bc': True, 'use_gpu': 0, 'use_huber_loss': False, 'vae_kl_weight': 0.5, 'warmup_steps': 200000, 'algorithm': 'BEAR', 'observation_shape': (60,), 'action_size': 9}
+[Safeguard] Baseline loss recorded for 'critic_loss': 222.96173095703125 at step 1
+[Eval Raw Scores] Trials: [2.00, 2.00, 1.00, 2.00, 2.00, 1.00, 2.00, 0.00, 0.00, 2.00] | Mean: 1.40
+[Tracker] New peak return achieved: 1.40! Saved best model to: Fully_trained/kitchen-complete-v0/BEAR_best_model.pt
+2026-08-30 23:06:50 [info     ] BEAR_20260830230248: epoch=1 step=10000 epoch=1 metrics={'time_sample_batch': 0.001346421480178833, 'time_algorithm_update': 0.019339322519302368, 'imitator_loss': 0.005988352932478301, 'temp_loss': -31.3822534384802, 'temp': 0.9993680501103401, 'alpha_loss': 0.0036862395513337105, 'alpha': 0.7943673250794411, 'critic_loss': 223.35737793693542, 'actor_loss': 0.011207379321195185, 'time_step': 0.021265003180503846, 'environment': 1.4, 'td_error': 369.71789333985583, 'discounted_advantage': -6.436493039673664, 'value_scale': -355.22326791166057} step=10000
+2026-08-30 23:06:50 [info     ] Model parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260830230248/model_10000.pt
+[Eval Raw Scores] Trials: [2.00, 0.00, 0.00, 0.00, 0.00, 0.00, 3.00, 2.00, 4.00, 2.00] | Mean: 1.30
+2026-08-30 23:10:48 [info     ] BEAR_20260830230248: epoch=2 step=20000 epoch=2 metrics={'time_sample_batch': 0.00135562527179718, 'time_algorithm_update': 0.019030211925506593, 'imitator_loss': 0.0009116466646373738, 'temp_loss': -55.342703595733646, 'temp': 1.0, 'alpha_loss': 0.03487347125802189, 'alpha': 0.33262648586928845, 'critic_loss': 475.33748529815676, 'actor_loss': 0.00027946447380818425, 'time_step': 0.021037651991844177, 'environment': 1.3, 'td_error': 1217.8955245289312, 'discounted_advantage': 180.9997006363533, 'value_scale': -876.1215231924346} step=20000
+2026-08-30 23:10:48 [info     ] Model parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260830230248/model_20000.pt
+[Eval Raw Scores] Trials: [2.00, 2.00, 0.00, 2.00, 2.00, 2.00, 2.00, 2.00, 2.00, 0.00] | Mean: 1.60
+[Tracker] New peak return achieved: 1.60! Saved best model to: Fully_trained/kitchen-complete-v0/BEAR_best_model.pt
+2026-08-30 23:14:48 [info     ] BEAR_20260830230248: epoch=3 step=30000 epoch=3 metrics={'time_sample_batch': 0.0013715054750442505, 'time_algorithm_update': 0.01924305372238159, 'imitator_loss': 0.0004058380485366797, 'temp_loss': -74.03427676620484, 'temp': 1.0, 'alpha_loss': 0.014963500362448394, 'alpha': 0.1357647245489061, 'critic_loss': 693.0446350280762, 'actor_loss': 0.0009369899099343456, 'time_step': 0.02127645695209503, 'environment': 1.6, 'td_error': 2668.007864187801, 'discounted_advantage': 362.9304799793955, 'value_scale': -1499.9054768302224} step=30000
+2026-08-30 23:14:48 [info     ] Model parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260830230248/model_30000.pt

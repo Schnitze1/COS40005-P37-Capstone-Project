@@ -1,0 +1,116 @@
+Running 1M Low-LR Option 1 Experiment: 1M Option 1 fine-tuning: Load model_30000.pt (Return 2.40), Actor LR 5e-6, Seed 45, Eval per 10k steps
+Job ID: 16042716
+Host: gina2
+Start Time: Mon Aug 31 14:16:44 AEST 2026
+[Perf] Enabled cuDNN benchmark + TF32 matmul acceleration
+Reading configurations for Franka
+Initializing Franka sim
+============================================================
+Instantiating BEAR with parameters:
+  critic_learning_rate: 0.0001
+  actor_learning_rate:  5e-06
+  tau:                  0.001
+  lam (min Q weight):   0.5
+  initial_alpha (MMD):  1.0
+  alpha_learning_rate:  0.0001
+  alpha_threshold:      0.15
+  warmup_steps:         10000
+  q_ramp_steps:         500000
+  ramp_type:            linear
+  bc_warmup_weight:     1.0
+  alpha_min:            0.1
+  alpha_max:            5.0
+  use_continuous_bc:    True
+  lambda_bc_start:      1.0
+  lambda_bc_floor:      1.0
+  lambda_bc_decay_steps:1000000
+  use_huber_loss:       False
+  huber_delta:          1.0
+  actor_lr_post_warmup: None
+  n_action_samples:     10
+  n_mmd_action_samples: 10
+  n_critics:            4
+  gamma:                0.99
+  mmd_kernel:           kl
+  mmd_sigma:            20.0
+  max_q_target:         400.0
+  reward_scaler:        None
+============================================================
+[Checkpoint] Loading policy weights from: /fred/oz479/COS40005-P37-Capstone-Project/tschnabe/Fully_trained/kitchen-complete-v0/BEAR_20260827180045/model_30000.pt
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._actor_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._alpha_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._critic_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._imitator_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._temp_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl.policy_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl.q_function_optim
+[Checkpoint] Successfully loaded _policy weights (Critic & Alpha initialized fresh).
+2026-08-31 14:16:53 [debug    ] RandomIterator is selected.
+2026-08-31 14:16:53 [info     ] Directory is created at Fully_trained/kitchen-complete-v0/BEAR_20260831141653
+2026-08-31 14:16:53 [debug    ] Fitting scaler...              scaler=standard
+2026-08-31 14:16:53 [warning  ] Skip building models since they're already built.
+2026-08-31 14:16:53 [info     ] Parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260831141653/params.json params={'action_scaler': None, 'actor_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'actor_l2_weight': 0.1, 'actor_learning_rate': 5e-06, 'actor_lr_post_warmup': None, 'actor_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'alpha_learning_rate': 0.0001, 'alpha_max': 5.0, 'alpha_min': 0.1, 'alpha_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'alpha_threshold': 0.15, 'baseline_loss': None, 'batch_size': 512, 'bc_warmup_weight': 1.0, 'critic_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'critic_learning_rate': 0.0001, 'critic_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'detach_mmd_actor': False, 'gamma': 0.99, 'generated_maxlen': 100000, 'huber_delta': 1.0, 'imitator_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'imitator_learning_rate': 0.0003, 'imitator_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'initial_alpha': 1.0, 'initial_temperature': 1.0, 'lam': 0.5, 'lambda_bc_decay_steps': 1000000, 'lambda_bc_floor': 1.0, 'lambda_bc_start': 1.0, 'last_valid_checkpoint_buffer': None, 'max_q_target': 400.0, 'mmd_actor_weight': 1.0, 'mmd_kernel': 'kl', 'mmd_sigma': 20.0, 'n_action_samples': 10, 'n_critics': 4, 'n_frames': 1, 'n_mmd_action_samples': 10, 'n_steps': 1, 'n_target_samples': 10, 'primary_loss_key': None, 'q_func_factory': {'type': 'mean', 'params': {'bootstrap': False, 'share_encoder': False}}, 'q_ramp_steps': 500000, 'ramp_type': 'linear', 'real_ratio': 1.0, 'reward_scaler': None, 'safeguard_steps': 0, 'scaler': {'type': 'standard', 'params': {'mean': array([[-1.05071568e+00, -1.69175159e+00,  1.62216928e+00,
+        -1.98836508e+00, -1.59308663e-01,  1.29814067e+00,
+         1.86633267e+00,  3.53195300e-02,  3.07675447e-02,
+         2.87966661e-05,  2.38691619e-06,  2.38102896e-05,
+         1.16442787e-06,  2.45649477e-05, -1.79240899e-07,
+         2.47075287e-05, -3.90584218e-07, -1.82792269e-01,
+        -1.30556557e-02,  2.15736963e-02, -2.60315547e-05,
+        -2.33145795e-04, -6.28441429e-01, -2.33538360e-01,
+         5.71854468e-01,  1.62592611e+00,  9.97776594e-01,
+         9.46435524e-03, -1.33348284e-03, -2.85968100e-03,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00, -6.89999998e-01,
+        -5.00000007e-02,  3.70000005e-01,  0.00000000e+00,
+         0.00000000e+00, -7.50000000e-01, -2.30000004e-01,
+         7.50000000e-01,  1.62000000e+00,  9.90000010e-01,
+         0.00000000e+00,  0.00000000e+00, -5.99999987e-02]]), 'std': array([[5.82695915e-01, 1.28922264e-01, 3.81948336e-01, 3.21245309e-01,
+        4.14860032e-01, 3.24552392e-01, 4.35709417e-01, 8.77797540e-03,
+        1.26954857e-02, 2.89488819e-04, 2.89440786e-04, 2.90993351e-05,
+        2.89205057e-05, 2.90036657e-05, 2.90081232e-05, 2.88831560e-05,
+        2.90270444e-05, 3.01855068e-01, 2.15664122e-02, 7.91023878e-02,
+        5.80195109e-03, 5.83092365e-03, 3.21148694e-01, 3.24292418e-02,
+        1.88180780e-01, 2.17495259e-02, 7.24231209e-03, 2.99360746e-02,
+        1.43939401e-02, 5.72166438e-02, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00]]), 'eps': 0.001}}, 'tau': 0.001, 'temp_learning_rate': 0.0001, 'temp_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'use_actor_l2_reg': False, 'use_continuous_bc': True, 'use_gpu': 0, 'use_huber_loss': False, 'vae_kl_weight': 0.5, 'warmup_steps': 10000, 'algorithm': 'BEAR', 'observation_shape': (60,), 'action_size': 9}
+[Safeguard] Baseline loss recorded for 'critic_loss': 33519.51953125 at step 1
+[Eval Raw Scores] Trials: [0.00, 2.00, 2.00, 0.00, 0.00, 2.00, 2.00, 0.00, 2.00, 2.00] | Mean: 1.20
+[Tracker] New peak return achieved: 1.20! Saved best model to: Fully_trained/kitchen-complete-v0/BEAR_best_model.pt
+2026-08-31 14:20:57 [info     ] BEAR_20260831141653: epoch=1 step=10000 epoch=1 metrics={'time_sample_batch': 0.0012920672655105591, 'time_algorithm_update': 0.01996968996524811, 'imitator_loss': 0.005831033980334178, 'temp_loss': -83.55724277191162, 'temp': 1.0, 'alpha_loss': -0.014653871338628232, 'alpha': 0.8671160034120083, 'critic_loss': 2205.4763860351563, 'actor_loss': 0.004982901925372425, 'time_step': 0.021673317527770995, 'environment': 1.2, 'td_error': 1237.4102235515813, 'discounted_advantage': -66.04474730829804, 'value_scale': -479.70102662991997} step=10000
+2026-08-31 14:20:57 [info     ] Model parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260831141653/model_10000.pt
+[Safeguard] Post-warmup step 10000: Cleared actor optimizer state (Adam momentum).
+[Eval Raw Scores] Trials: [0.00, 2.00, 0.00, 2.00, 2.00, 2.00, 2.00, 2.00, 2.00, 3.00] | Mean: 1.70
+[Tracker] New peak return achieved: 1.70! Saved best model to: Fully_trained/kitchen-complete-v0/BEAR_best_model.pt
+2026-08-31 14:25:35 [info     ] BEAR_20260831141653: epoch=2 step=20000 epoch=2 metrics={'time_sample_batch': 0.001314456820487976, 'time_algorithm_update': 0.023191537380218504, 'imitator_loss': 0.0008508143920975272, 'temp_loss': -84.71198865127563, 'temp': 1.0, 'alpha_loss': 0.034907559899718034, 'alpha': 0.3788270050793886, 'critic_loss': 516.7563408447265, 'actor_loss': 0.002539889003848657, 'time_step': 0.025032537937164305, 'environment': 1.7, 'td_error': 1020.1429395760889, 'discounted_advantage': -25.843283574792373, 'value_scale': -481.8279838176689} step=20000
+2026-08-31 14:25:36 [info     ] Model parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260831141653/model_20000.pt
+
++------------------ Job Report: 16042716 (CANCELLED) ------------------+
+| Memory (RAM)  [#########           ] 45.8% (938 MB peak / 2 GB)      |
+| CPU           [####                ] 24.1% average                   |
+| GPU           [######              ] 31.7% average                   |
+| Time          [>                   ]  2.1% (0-00:09:14 / 0-07:30:00) |
+|                                                                      |
+| Lustre Filesystem:                                                   |
+|   Path    Total Read    Total Write      Total IOPS                  |
+|   ------  ------------  -------------  ------------                  |
+|   /apps   109.8 MB      0 B                    297                   |
+|   /fred   73.8 MB       32.6 MB                156                   |
+|   /home   0 B           0 B                      3                   |
+|   OS      48 MB         0 B                     85                   |
+|                                                                      |
+| Warnings:                                                            |
+|   - Too much memory requested                                        |
+|   - CPU usage is low                                                 |
+|   - GPU usage is low                                                 |
+|   - Too much time requested                                          |
++----------------------------------------------------------------------+

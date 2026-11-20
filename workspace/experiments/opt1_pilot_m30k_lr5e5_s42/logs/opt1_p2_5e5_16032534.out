@@ -1,0 +1,101 @@
+Running 5-Job Pilot Experiment: PILOT-02: Load Peak BC (model_30000.pt, Return 2.40), Moderate Fine-tune Actor LR 5e-5, Seed 42
+Job ID: 16032534
+Host: gina15
+Start Time: Sun Aug 30 23:01:58 AEST 2026
+[Perf] Enabled cuDNN benchmark + TF32 matmul acceleration
+Reading configurations for Franka
+Initializing Franka sim
+============================================================
+Instantiating BEAR with parameters:
+  critic_learning_rate: 0.0001
+  actor_learning_rate:  5e-05
+  tau:                  0.001
+  lam (min Q weight):   0.5
+  initial_alpha (MMD):  1.0
+  alpha_learning_rate:  0.0001
+  alpha_threshold:      0.15
+  warmup_steps:         10000
+  q_ramp_steps:         500000
+  ramp_type:            linear
+  bc_warmup_weight:     1.0
+  alpha_min:            0.1
+  alpha_max:            5.0
+  use_continuous_bc:    True
+  lambda_bc_start:      1.0
+  lambda_bc_floor:      1.0
+  lambda_bc_decay_steps:200000
+  use_huber_loss:       False
+  huber_delta:          1.0
+  actor_lr_post_warmup: None
+  n_action_samples:     10
+  n_mmd_action_samples: 10
+  n_critics:            4
+  gamma:                0.99
+  mmd_kernel:           kl
+  mmd_sigma:            20.0
+  max_q_target:         400.0
+  reward_scaler:        None
+============================================================
+[Checkpoint] Loading policy weights from: /fred/oz479/COS40005-P37-Capstone-Project/tschnabe/Fully_trained/kitchen-complete-v0/BEAR_20260827180045/model_30000.pt
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._actor_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._alpha_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._critic_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._imitator_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl._temp_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl.policy_optim
+[Safeguard] Applying gradient clipping (max_norm=1.0) to optimizer: impl.q_function_optim
+[Checkpoint] Successfully loaded _policy weights (Critic & Alpha initialized fresh).
+2026-08-30 23:02:06 [debug    ] RandomIterator is selected.
+2026-08-30 23:02:06 [info     ] Directory is created at Fully_trained/kitchen-complete-v0/BEAR_20260830230206
+2026-08-30 23:02:06 [debug    ] Fitting scaler...              scaler=standard
+2026-08-30 23:02:06 [warning  ] Skip building models since they're already built.
+2026-08-30 23:02:06 [info     ] Parameters are saved to Fully_trained/kitchen-complete-v0/BEAR_20260830230206/params.json params={'action_scaler': None, 'actor_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'actor_l2_weight': 0.1, 'actor_learning_rate': 5e-05, 'actor_lr_post_warmup': None, 'actor_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'alpha_learning_rate': 0.0001, 'alpha_max': 5.0, 'alpha_min': 0.1, 'alpha_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'alpha_threshold': 0.15, 'baseline_loss': None, 'batch_size': 512, 'bc_warmup_weight': 1.0, 'critic_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'critic_learning_rate': 0.0001, 'critic_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'detach_mmd_actor': False, 'gamma': 0.99, 'generated_maxlen': 100000, 'huber_delta': 1.0, 'imitator_encoder_factory': {'type': 'default', 'params': {'activation': 'relu', 'use_batch_norm': False, 'dropout_rate': None}}, 'imitator_learning_rate': 0.0003, 'imitator_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'initial_alpha': 1.0, 'initial_temperature': 1.0, 'lam': 0.5, 'lambda_bc_decay_steps': 200000, 'lambda_bc_floor': 1.0, 'lambda_bc_start': 1.0, 'last_valid_checkpoint_buffer': None, 'max_q_target': 400.0, 'mmd_actor_weight': 1.0, 'mmd_kernel': 'kl', 'mmd_sigma': 20.0, 'n_action_samples': 10, 'n_critics': 4, 'n_frames': 1, 'n_mmd_action_samples': 10, 'n_steps': 1, 'n_target_samples': 10, 'primary_loss_key': None, 'q_func_factory': {'type': 'mean', 'params': {'bootstrap': False, 'share_encoder': False}}, 'q_ramp_steps': 500000, 'ramp_type': 'linear', 'real_ratio': 1.0, 'reward_scaler': None, 'safeguard_steps': 0, 'scaler': {'type': 'standard', 'params': {'mean': array([[-1.05071568e+00, -1.69175159e+00,  1.62216928e+00,
+        -1.98836508e+00, -1.59308663e-01,  1.29814067e+00,
+         1.86633267e+00,  3.53195300e-02,  3.07675447e-02,
+         2.87966661e-05,  2.38691619e-06,  2.38102896e-05,
+         1.16442787e-06,  2.45649477e-05, -1.79240899e-07,
+         2.47075287e-05, -3.90584218e-07, -1.82792269e-01,
+        -1.30556557e-02,  2.15736963e-02, -2.60315547e-05,
+        -2.33145795e-04, -6.28441429e-01, -2.33538360e-01,
+         5.71854468e-01,  1.62592611e+00,  9.97776594e-01,
+         9.46435524e-03, -1.33348284e-03, -2.85968100e-03,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00,  0.00000000e+00,
+         0.00000000e+00,  0.00000000e+00, -6.89999998e-01,
+        -5.00000007e-02,  3.70000005e-01,  0.00000000e+00,
+         0.00000000e+00, -7.50000000e-01, -2.30000004e-01,
+         7.50000000e-01,  1.62000000e+00,  9.90000010e-01,
+         0.00000000e+00,  0.00000000e+00, -5.99999987e-02]]), 'std': array([[5.82695915e-01, 1.28922264e-01, 3.81948336e-01, 3.21245309e-01,
+        4.14860032e-01, 3.24552392e-01, 4.35709417e-01, 8.77797540e-03,
+        1.26954857e-02, 2.89488819e-04, 2.89440786e-04, 2.90993351e-05,
+        2.89205057e-05, 2.90036657e-05, 2.90081232e-05, 2.88831560e-05,
+        2.90270444e-05, 3.01855068e-01, 2.15664122e-02, 7.91023878e-02,
+        5.80195109e-03, 5.83092365e-03, 3.21148694e-01, 3.24292418e-02,
+        1.88180780e-01, 2.17495259e-02, 7.24231209e-03, 2.99360746e-02,
+        1.43939401e-02, 5.72166438e-02, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+        0.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00]]), 'eps': 0.001}}, 'tau': 0.001, 'temp_learning_rate': 0.0001, 'temp_optim_factory': {'optim_cls': 'Adam', 'betas': (0.9, 0.999), 'eps': 1e-08, 'weight_decay': 0, 'amsgrad': False}, 'use_actor_l2_reg': False, 'use_continuous_bc': True, 'use_gpu': 0, 'use_huber_loss': False, 'vae_kl_weight': 0.5, 'warmup_steps': 10000, 'algorithm': 'BEAR', 'observation_shape': (60,), 'action_size': 9}
+[Safeguard] Baseline loss recorded for 'critic_loss': 33703.171875 at step 1
+
++------------------ Job Report: 16032534 (CANCELLED) ------------------+
+| Memory (RAM)  No data available                                      |
+| CPU           [#                   ]  9.1% average                   |
+| GPU           [                    ]  0.0% average                   |
+| Time          [>                   ]  0.6% (0-00:00:41 / 0-02:00:00) |
+|                                                                      |
+| Lustre Filesystem:                                                   |
+|   Path    Total Read    Total Write      Total IOPS                  |
+|   ------  ------------  -------------  ------------                  |
+|   /apps   0 B           0 B                      9                   |
+|   /fred   8.6 MB        45.3 KB                 32                   |
+|   /home   0 B           0 B                      1                   |
+|   OS      0 B           0 B                     10                   |
++----------------------------------------------------------------------+

@@ -1,0 +1,8 @@
+{
+  "folder": "bc_1m_lr1e4_s42",
+  "job_name": "bc_1e4_1m",
+  "desc": "Pure BC Baseline (Actor LR 1e-4, Seed 42) [1M Steps]",
+  "time": "07:30:00",
+  "flag": "--seed 42 --n_steps 1000000 --n_steps_per_epoch 20000 --warmup_steps 1000000 --actor_lr 1e-4 --use_continuous_bc --lambda_bc_start 1.0 --lambda_bc_floor 1.0 --lambda_bc_decay_steps 1000000 --enable_tf32 --batch_size 512",
+  "horizon": "1m"
+}

@@ -1,0 +1,7 @@
+{
+  "folder": "bc_pilot_lr1e4_s42",
+  "job_name": "bc_p1_1e4",
+  "desc": "PILOT-01: Standalone Pure BC Upper Bound Baseline (Actor LR 1e-4, Seed 42, 200k Steps)",
+  "time": "02:00:00",
+  "flag": "--seed 42 --n_steps 200000 --n_steps_per_epoch 10000 --warmup_steps 200000 --actor_lr 1e-4 --use_continuous_bc --lambda_bc_start 1.0 --lambda_bc_floor 1.0 --lambda_bc_decay_steps 200000 --enable_tf32 --batch_size 512"
+}

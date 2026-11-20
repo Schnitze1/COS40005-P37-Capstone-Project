@@ -1,0 +1,7 @@
+{
+  "folder": "opt1_pilot_m30k_lr5e5_s42",
+  "job_name": "opt1_p2_5e5",
+  "desc": "PILOT-02: Load Peak BC (model_30000.pt, Return 2.40), Moderate Fine-tune Actor LR 5e-5, Seed 42",
+  "time": "02:00:00",
+  "flag": "--seed 42 --n_steps 200000 --n_steps_per_epoch 10000 --warmup_steps 10000 --q_ramp_steps 500000 --actor_lr 5e-5 --alpha_min 0.1 --alpha_max 5.0 --use_continuous_bc --lambda_bc_start 1.0 --lambda_bc_floor 1.0 --lambda_bc_decay_steps 200000 --max_q_target 400.0 --enable_tf32 --batch_size 512 --load_model /fred/oz479/COS40005-P37-Capstone-Project/tschnabe/Fully_trained/kitchen-complete-v0/BEAR_20260827180045/model_30000.pt"
+}

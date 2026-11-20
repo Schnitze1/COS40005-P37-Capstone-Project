@@ -1,0 +1,7 @@
+{
+  "folder": "exp21_detach_mmd_actor_l2_s42_1m",
+  "job_name": "bear_exp21_1m",
+  "desc": "Exp 21: Detach MMD + Behavior Cloning L2 regularizer (weight 0.1, 1M steps, Seed 42, TF32+BS512)",
+  "time": "06:00:00",
+  "flag": "--seed 42 --n_steps 1000000 --n_steps_per_epoch 20000 --warmup_steps 20000 --q_ramp_steps 500000 --actor_lr 1e-6 --alpha_min 0.1 --alpha_max 5.0 --use_continuous_bc --lambda_bc_start 1.0 --lambda_bc_floor 0.5 --lambda_bc_decay_steps 1000000 --detach_mmd_actor --use_actor_l2_reg --actor_l2_weight 0.1 --max_q_target 400.0 --enable_tf32 --batch_size 512 --load_model /fred/oz479/COS40005-P37-Capstone-Project/tschnabe/Fully_trained/kitchen-complete-v0/BEAR_20260827180045/model_400000.pt"
+}

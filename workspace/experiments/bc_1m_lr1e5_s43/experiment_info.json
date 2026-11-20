@@ -1,0 +1,7 @@
+{
+  "folder": "bc_1m_lr1e5_s43",
+  "job_name": "bc_lr1e5_s43",
+  "desc": "Phase A BC-10: Standalone 1M BC (Low-noise Actor LR 1e-5, Seed 43, TF32+BS512)",
+  "time": "06:00:00",
+  "flag": "--seed 43 --n_steps 1000000 --n_steps_per_epoch 20000 --warmup_steps 1000000 --actor_lr 1e-5 --use_continuous_bc --lambda_bc_start 1.0 --lambda_bc_floor 1.0 --lambda_bc_decay_steps 1000000 --enable_tf32 --batch_size 512"
+}
