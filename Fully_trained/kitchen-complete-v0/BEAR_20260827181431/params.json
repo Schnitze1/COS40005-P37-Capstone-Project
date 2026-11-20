@@ -1,0 +1,266 @@
+{
+  "action_scaler": null,
+  "actor_encoder_factory": {
+    "type": "default",
+    "params": {
+      "activation": "relu",
+      "use_batch_norm": false,
+      "dropout_rate": null
+    }
+  },
+  "actor_learning_rate": 0.0001,
+  "actor_lr_post_warmup": null,
+  "actor_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "alpha_learning_rate": 0.0001,
+  "alpha_min": 0.1,
+  "alpha_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "alpha_threshold": 0.15,
+  "baseline_loss": null,
+  "batch_size": 256,
+  "bc_warmup_weight": 1.0,
+  "critic_encoder_factory": {
+    "type": "default",
+    "params": {
+      "activation": "relu",
+      "use_batch_norm": false,
+      "dropout_rate": null
+    }
+  },
+  "critic_learning_rate": 5e-05,
+  "critic_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "gamma": 0.99,
+  "generated_maxlen": 100000,
+  "huber_delta": 1.0,
+  "imitator_encoder_factory": {
+    "type": "default",
+    "params": {
+      "activation": "relu",
+      "use_batch_norm": false,
+      "dropout_rate": null
+    }
+  },
+  "imitator_learning_rate": 0.0003,
+  "imitator_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "initial_alpha": 1.0,
+  "initial_temperature": 1.0,
+  "lam": 0.5,
+  "last_valid_checkpoint_buffer": null,
+  "max_q_target": 400.0,
+  "mmd_kernel": "kl",
+  "mmd_sigma": 20.0,
+  "n_action_samples": 10,
+  "n_critics": 4,
+  "n_frames": 1,
+  "n_mmd_action_samples": 10,
+  "n_steps": 1,
+  "n_target_samples": 10,
+  "primary_loss_key": null,
+  "q_func_factory": {
+    "type": "mean",
+    "params": {
+      "bootstrap": false,
+      "share_encoder": false
+    }
+  },
+  "q_ramp_steps": 0,
+  "ramp_type": "linear",
+  "real_ratio": 1.0,
+  "reward_scaler": {
+    "type": "multiply",
+    "params": {
+      "multiplier": 0.25
+    }
+  },
+  "safeguard_steps": 0,
+  "scaler": {
+    "type": "standard",
+    "params": {
+      "mean": [
+        [
+          -1.0507156812421927,
+          -1.6917515926670212,
+          1.6221692779504036,
+          -1.9883650843572054,
+          -0.15930866273402003,
+          1.2981406716786166,
+          1.866332666706367,
+          0.03531953000786024,
+          0.030767544692271734,
+          2.879666606123058e-05,
+          2.3869161939264263e-06,
+          2.3810289565870916e-05,
+          1.164427867151396e-06,
+          2.4564947691510513e-05,
+          -1.7924089934590863e-07,
+          2.4707528747204636e-05,
+          -3.905842175033822e-07,
+          -0.18279226898591455,
+          -0.013055655702957091,
+          0.021573696329588526,
+          -2.603155467831959e-05,
+          -0.0002331457950936097,
+          -0.6284414288906882,
+          -0.23353836041477657,
+          0.571854467781628,
+          1.6259261101746119,
+          0.9977765936665158,
+          0.00946435523685362,
+          -0.0013334828442248382,
+          -0.0028596809988737405,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.6899999976158142,
+          -0.05000000074505806,
+          0.3700000047683716,
+          0.0,
+          0.0,
+          -0.75,
+          -0.23000000417232513,
+          0.75,
+          1.6200000047683716,
+          0.9900000095367432,
+          0.0,
+          0.0,
+          -0.05999999865889549
+        ]
+      ],
+      "std": [
+        [
+          0.5826959145281867,
+          0.12892226358421718,
+          0.3819483359436594,
+          0.32124530856781275,
+          0.4148600322006556,
+          0.32455239195514085,
+          0.4357094174518592,
+          0.0087779753991927,
+          0.012695485683065156,
+          0.0002894888191124393,
+          0.00028944078644510513,
+          2.909933513093222e-05,
+          2.8920505689593147e-05,
+          2.9003665677911993e-05,
+          2.9008123163563015e-05,
+          2.888315600781375e-05,
+          2.9027044386495088e-05,
+          0.3018550681222506,
+          0.02156641222820246,
+          0.0791023877830327,
+          0.005801951086917778,
+          0.005830923654642111,
+          0.3211486938121691,
+          0.03242924175891029,
+          0.1881807801655084,
+          0.021749525897652753,
+          0.007242312085966898,
+          0.029936074559636865,
+          0.014393940067487466,
+          0.05721664377658792,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "eps": 0.001
+    }
+  },
+  "tau": 0.001,
+  "temp_learning_rate": 0.0001,
+  "temp_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "use_gpu": 0,
+  "use_huber_loss": true,
+  "vae_kl_weight": 0.5,
+  "warmup_steps": 40000,
+  "algorithm": "BEAR",
+  "observation_shape": [
+    60
+  ],
+  "action_size": 9
+}

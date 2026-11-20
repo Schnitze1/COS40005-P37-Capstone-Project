@@ -1,0 +1,83 @@
+{
+  "action_scaler": null,
+  "actor_encoder_factory": {
+    "type": "default",
+    "params": {
+      "activation": "relu",
+      "use_batch_norm": false,
+      "dropout_rate": null
+    }
+  },
+  "actor_learning_rate": 0.0003,
+  "actor_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "baseline_loss": null,
+  "batch_size": 256,
+  "critic_encoder_factory": {
+    "type": "default",
+    "params": {
+      "activation": "relu",
+      "use_batch_norm": false,
+      "dropout_rate": null
+    }
+  },
+  "critic_learning_rate": 0.0003,
+  "critic_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "expectile": 0.7,
+  "gamma": 0.99,
+  "generated_maxlen": 100000,
+  "last_valid_checkpoint_buffer": null,
+  "max_weight": 100.0,
+  "n_critics": 2,
+  "n_frames": 1,
+  "n_steps": 1,
+  "primary_loss_key": null,
+  "real_ratio": 1.0,
+  "reward_scaler": null,
+  "safeguard_steps": 0,
+  "scaler": null,
+  "tau": 0.005,
+  "use_gpu": 0,
+  "value_encoder_factory": {
+    "type": "default",
+    "params": {
+      "activation": "relu",
+      "use_batch_norm": false,
+      "dropout_rate": null
+    }
+  },
+  "value_learning_rate": 0.0003,
+  "value_optim_factory": {
+    "optim_cls": "Adam",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "eps": 1e-08,
+    "weight_decay": 0,
+    "amsgrad": false
+  },
+  "weight_temp": 0.5,
+  "algorithm": "IQL",
+  "observation_shape": [
+    60
+  ],
+  "action_size": 9
+}
